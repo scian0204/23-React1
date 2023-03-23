@@ -48,7 +48,7 @@ const element = <img href={user.avatarUrl}></img>;
   - html이나 xml에 {}안에 자바스크립트 코드 사용
 
 ### 실습
-[./src/chapter_03](https://github.com/scian0204/23-React1/blob/60ae7c3e8c829e9e71edef351f8b73ae772d361a/src/chapter_03)
+[./src/chapter_03](https://github.com/scian0204/23-React1/tree/master/src/chapter_03)
 
 ---
 ## 3주차_20230316
