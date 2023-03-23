@@ -1,7 +1,54 @@
 # 201930107 남궁찬 - React1
 
 ## 4주차_20230323
+### 수업 전 준비
+1. README.md 백업
+2. local에 있는 저장소 이름 바꾸기/삭제
+3. 새 프로젝트 생성(23-react1)
+4. README.md 덮어쓰기
+5. GitHub 저장소 삭제
+6. 로컬에서 23-react1 push
+7. GitHub 저장소 확인
 
+### JSX
+ex)
+```jsx
+const element = <h1>Hello, world!</h1>;
+```
+문자열도, HTML도 아님
+  
+- JSX에 표현식 포함하기
+``` jsx
+const name = "Josh Perez";
+const element = <h1>Hello, {name}</h1>; // Hello, Josh Perez
+```
+- 속성 정의
+``` jsx
+const element = <a href="https://www.reactjs.org"> link </a>;
+```
+- 중괄호 이용
+``` jsx
+const element = <img href={user.avatarUrl}></img>;
+```
+- 단일 태그
+``` jsx
+<br> //오류
+<br />
+```
+- Babel
+  - JSX 컴파일러
+  - JSX를 React.createElement() 호출로 컴파일 함
+- 장점
+  - 코드가 간결해짐
+  - 가독성이 향상됨
+  - Injection Attack이라 불리는 해킹 방법을 방어함
+- 사용법
+  - 모든 자바스크립트 문법 지원
+  - 자바스크립트 문법에 XML과 HTML을 섞어서 사용
+  - html이나 xml에 {}안에 자바스크립트 코드 사용
+
+### 실습
+[./src/chapter_03](https://github.com/scian0204/23-React1/blob/60ae7c3e8c829e9e71edef351f8b73ae772d361a/src/chapter_03)
 
 ---
 ## 3주차_20230316
