@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html>
+    <head>
+      <title>element render</title>
+    </head>
+    <body>
+      <div id="root"></div>
+
+      <!-- 리액트 가져오기 -->
+      <script crossorigin src="https://unpkg.com/react@18/umd/react.development.js"></script>
+      <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+      <script src="https://unpkg.com/babel-standalone@6/babel.min.js"></script>
+
+      <!-- 리액트 컴포넌트 가져오기 -->
+      <script type="text/babel" src="tick.js"></script>
+      <!-- <script type="text/javascript">
+        const root = document.getElementById("root");
+        const div = document.createElement("div");
+        const h1 = document.createElement("h1");
+        h1.innerText = "안녕, 리액트!";
+        const h2 = document.createElement("h2");
+        div.appendChild(h1);
+        div.appendChild(h2);
+        root.appendChild(div);
+        function tick() {
+            let time = new Date().toLocaleTimeString();
+            h2.innerText = `현재 시간 : ${time}`;
+        }
+
+        setInterval(tick, 1000);
+      </script> -->
+    </body>
+   </html>
