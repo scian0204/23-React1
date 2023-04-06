@@ -1,5 +1,377 @@
 # 201930107 남궁찬 - React1
 
+## 6주차_20230406
+### class, id
+- 리액트에선 `자바스크립트`의 `class`와 `HTML`의 `class`를 구분하기 위해 `HTML`의 `class`를 `className`으로 씀.
+- `스타일`을 위해 `id`를 사용하는것은 좋지 않음
+### 컴포넌트 추출
+- `복잡한 컴포넌트`를 쪼개 `여러개`의 `컴포넌트`로 나눌 수 있음
+- `큰 컴포넌트`에서 `일부`를 `추출`하여 `새로운 컴포넌트`를 만드는 것
+- 실무에서는 처음부터 `1개`의 `컴포넌트`에 `하나`의 `기능`만 사용하도록 설계하는 것이 좋음
+- 예시
+  - 댓글을 표시하기 위한 컴포넌트
+``` JSX
+function Comment(props) {
+  return (
+    <div className="comment">
+      <div className="user-info">
+        <img className="avatar"
+            src={props.author.avatarUrl}
+            alt={props.author.name}
+        />
+        <div className="user-info-name">
+          {props.author.name}
+        </div>
+      </div>
+
+      <div className="comment-text">
+        {props.text}
+      </div>
+
+      <div className="comment-date">
+        {formatDate(props.date)}
+      </div>
+    </div>
+  );
+}
+```
+  - 프로필 이미지 표시하는 부분을 추출한 컴포넌트
+``` JSX
+function Avatar(props) {
+  return (
+    <div className="avatar" 
+        src={props.user.avatar}
+        alt={props.user.name}
+    />
+  );
+}
+```
+  - 사용자 정보를 담고있는 부분을 추출한 컴포넌트
+``` JSX
+function UserInfo(props) {
+  <div className="user-info">
+    <Avatar uer={props.user} />
+    <div className="user-info-name">
+      {props.user.name}
+    </div>
+  </div>
+}
+```
+  - 추출한 컴포넌트를 반영한 Comment 컴포넌트
+```JSX
+function Comment(props) {
+  return (
+    <div className="comment">
+      <UserInfo user={props.author} />
+      <div className="comment-text">
+        {props.text}
+      </div>
+
+      <div className="comment-date">
+        {formatDate(props.date)}
+      </div>
+    </div>
+  );
+}
+```
+
+### 이미지 삽입
+- 배포는 `public` 폴더의 `index.html`에서 `최종 배포`가 되기 떄문에 `index.html 기준`으로 `이미지 경로`를 지정해줘야 함
+- 굳이 그 밖에 있는 이미지를 넣고 싶으면 하나하나 `import`를 해줘야 함
+
+### 실습
+- Comment 컴포넌트
+``` JSX
+import React from 'react';
+
+const styles = {
+    wrapper: {
+        margin: 8,
+        padding: 8,
+        display: "flex",
+        flexDirection: "row",
+        border: "1px solid grey",
+        borderRadius: 16,
+    },
+    imageContainer: {},
+    image: {
+        width: 50,
+        height: 50,
+        borderRadius: 25,
+    },
+    contentContainer: {
+        marginLeft: 8,
+        display: "flex",
+        flexDirection: "column",
+        justifyContent: "center",
+    },
+    nameText: {
+        color: "black",
+        fontSize: 16,
+        fontWeight: "bold",
+    },
+    commentText: {
+        color: "black",
+        fontSize: 16,
+    },
+};
+
+function Comment(props) {
+    return (
+        <div style={styles.wrapper}>
+            <div style={styles.imageContainer}>
+                <img 
+                    src="https://upload.wikimedia.org/wikipedia/commons/8/89/Portrait_Placeholder.png"
+                    // src="./images/logo.png"
+                    alt="프로필 이미지"
+                    style={styles.image}
+                />
+            </div>
+            <div style={styles.contentContainer}>
+                <span style={styles.nameText}> {props.name} </span>
+                <span style={styles.commentText}> {props.comment} </span>
+            </div>
+        </div>
+    );
+}
+
+export default Comment;
+```
+- CommnetList 컴포넌트
+``` JSX
+import React from 'react';
+import Comment from './Comment';
+
+const comments = [
+    {
+        name: "남궁찬",
+        comment: "안녕하세요."
+    }, 
+    {
+        name: "남궁찬2",
+        comment: "안녕하세요."
+    }, 
+    {
+        name: "남궁찬3",
+        comment: "안녕하세요."
+    }, 
+]
+
+function CommentList(props) {
+    return (
+        <div>
+            {comments.map((data) => {
+                return (
+                    <Comment name={data.name} comment={data.comment} />
+                )
+            })}
+        </div>
+    );
+}
+
+export default CommentList;
+```
+
+### chapter5 요약
+- 리액트 컴포넌트
+  - `컴포넌트 기반 구조`
+    - `작은 컴포넌트`들이 모여서 `하나의 컴포넌트`를 `구성`하고 이러한 컴포넌트들이 모여서 `전체 페이지`를 `구성`
+  - 개념적으로는 `자바스크립트`의 `함수`와 비슷함
+    - `속성`들을 `입력`으로 받아서 그에 맞는 `리액트 엘리먼트`를 `생성`하여 `리턴`함
+- `Props`
+  - Props의 `개념`
+    - 리액트 컴포넌트의 `속성`
+    - 컴포넌트에 `전달`할 다양한 `정보`를 담고 있는 자바스크립트 `객체`
+  - Props의 `특징`
+    - `읽기 전용`
+    - 리액트 컴포넌트의 props는 바꿀 수 없고, 같은 props가 들어오면 항상 같은 엘리먼트를 리턴해야 함
+  - Props의 `사용법`
+    - JSX를 사용할 경우 컴포넌트에 `키-값 쌍 형태로` 넣어주면 됨
+    - 문자열 이외에 `정수`, `변수`, 그리고 `다른 컴포넌트` 등이 들어갈 경우에는 `파라미터`로 자바스크립트 객체를 넣어주면 됨
+- 컴포넌트 만들기
+  - 컴포넌트의 종류
+    - `클래스` 컴포넌트와 `함수` 컴포넌트로 나뉨
+      - 함수 컴포넌트 
+        - 함수 형태로 된 컴포넌트
+      - 클래스 컴포넌트
+        - ES6의 클래스를 사용하여 만들어진 컴포넌트
+  - 컴포넌트 이름 짓기
+    - 컴포넌트의 이름은 항상 `대문자`로 시작해야 함
+    - 소문자로 시작할 경우 컴포넌트를 DOM 태그로 인식하기 떄문
+  - 컴포넌트 `렌더링`
+    - 컴포넌트로부터 `엘리먼트`를 `생성`하여 이를 `리액트 DOM`에 `전달`
+- 컴포넌트 `합성`
+  - `여러 개`의 컴포넌트를 합쳐서 `하나`의 컴포넌트를 만드는 것
+- 컴포넌트 `추출`
+  - `큰 컴포넌트`에서 일부를 `추출`해서 `새로운 컴포넌트`를 만드는 것
+  - `기능 단위`로 구분하는 것이 좋고, 나중에 곧바로 `재사용`이 `가능`한 형태로 추출하는 것이 좋음
+
+### State
+1. `State`란?
+   - State는 리액트 `컴포넌트`의 `상태`를 의미함
+   - 상태의 의미는 정상인지 비정산인지가 아니라 컴포넌트의 `데이터`를 의미함
+   - 정확히는 컴포넌트의 `변경가능`한 데이터를 의미
+   - State가 변하면 `다시 렌더링`이 되기 때문에 렌더링과 관련된 값만 State에 포함시켜야 함
+2. State의 `특징`
+   - 리액트 만의 특별한 형태가 아닌 단지 자바스크립트 객체일 뿐임
+``` JSX
+class LikeButton extends React.Component {
+  constructor(props) {
+    super(props);
+
+    this.state = {
+      liked: false
+    };
+  }
+}
+```
+   - `constructor`는 `생성자`이고 그 안에 있는 `this.state`가 현 컴포넌트의 `state`임
+   - `함수형`에서는 `useState()`라는 함수를 사용함
+   - state는 변경은 가능하지만 `직접 수정해선 안됨`
+   - `setState()`함수를 사용하여 변경해야 함
+``` JSX
+// state를 직접 수정 (잘못된 사용법)
+this.state = {
+  name: 'Inje'
+};
+
+// setState 함수를 통한 수정 (정상적인 사용법)
+this.setState({
+  name: 'Inje'
+})
+```
+
+### component vs element vs instance
+- `element`: 재료
+- `component`: 빵 틀
+- `instance`: 재료를 빵틀에 넣고 만든 빵
+
+### 생명주기
+- `생명주기`는 컴포넌트의 `생성 시점`, `사용 시점`, `종료 시점`을 나타내는 것
+- `constructor`가 `실행`되면서 컴포넌트가 `생성`됨
+- `생성 직후` `componentDidMount()` 함수가 `호출`됨
+- 컴포넌트가 `소멸하기 전까지` `여러 번` `렌더링`함
+- `렌더링`은 `props`, `setState()`, `forceUpdate()`에 의해 `상태`가 `변경`되면 이루어짐
+- `렌더링`이 끝나면 `componentDidUpdate()` 함수가 `호출`됨
+- `컴포넌트`가 `언마운트`되면 `componentWillUnmount()` 함수가 `호출`됨
+![lifeCycle](https://cdn.filestackcontent.com/ApNH7030SAG1wAycdj3H)
+
+### 실습
+- Notifiation 컴포넌트
+``` JSX
+import React from "react";
+
+const styles = {
+    wrapper: {
+        margin: 8,
+        padding: 8,
+        display: "flex",
+        flexDirection: "row",
+        border: "1px solid grey",
+        borderRadius: 16,
+    },
+    messageText: {
+        color: "black",
+        fontSize: 16,
+    },
+};
+
+class Notification extends React.Component {
+    constructor(props) {
+        super(props);
+
+        this.state = {};
+    }
+
+    render() {
+        return (
+            <div style={styles.wrapper}>
+                <span style={styles.messageText}>
+                    {this.props.message}
+                </span>
+            </div>
+        );
+    }
+}
+
+export default Notification;
+```
+
+- NotificationList 컴포넌트
+``` JSX
+import React from 'react';
+import Notification from './Notification';
+
+const reservedNotifications = [
+    {
+        id: 1,
+        message: "message1"
+    }, 
+    {
+        id: 2,
+        message: "message2"
+    }, 
+    {
+        id: 3,
+        message: "message3"
+    }, 
+];
+
+var timer;
+
+class NotificationList extends React.Component {
+    constructor(props) {
+        super(props);
+
+        this.state = {
+            notifications: [],
+        };
+    }
+
+    componentDidMount() {
+        const { notifications } = this.state;
+        timer = setInterval(() => {
+            if(notifications.length < reservedNotifications.length) {
+                const index = notifications.length;
+                notifications.push(reservedNotifications[index]);
+                this.setState({
+                    notifications: notifications
+                });
+            } else {
+                clearInterval(timer);
+            }
+        }, 1000);
+    }
+
+    render() {
+        return(
+            <div>
+                {this.state.notifications.map((notification) => {
+                    return <Notification
+                        key={notification.id}
+                        id={notification.id}
+                        message={notification.message} 
+                    />
+                })}
+            </div>
+        );
+    }
+}
+
+export default NotificationList;
+```
+- `생성자`에서 앞으로 `사용할 데이터`를 `state`에 넣어서 `초기화` 함
+- `componentDidMount()` 함수에서는 `setInterval()`함수를 사용하여 1초마다 `reservedNotifications로부터` `알림 데이터`를 `하나씩` 가져와 `state`에 있는 `notification 배열`에 넣는 작업을 함
+- `state`를 `변경`할 시 `setState()` 함수를 사용하여 화면을 다시 렌더링 하게 함
+
+### React Developer tools
+- `크롬 확장 프로그램`
+- 설치 후 리액트 앱에서 `개발자도구`에 들어가면 `컴포넌트`와 `프로파일러`라는 항목이 생김
+  - `컴포넌트`: `화면에 존재`하는 `컴포넌트`가 `트리 형태`로 보이며, 각 컴포넌트별 `props`와 `state`확인 가능
+- `프로파일러`: 컴포넌트가 `렌더링` 되는 `과정`을 `기록`하여 각 `단계별`로 살펴볼 수 있음.
+
+
+---
 ## 5주차_20230330
 ### 엘리먼트의 정의
 - 리액트 앱을 구성하는 요소
