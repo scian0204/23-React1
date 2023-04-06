@@ -1,17 +1,18 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
 import './index.css';
-import App from './App.js';
 import reportWebVitals from './reportWebVitals';
+import NotificationList from './chapter_06/NotificationList';
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 // setInterval(()=>{
-  root.render(
-    <React.StrictMode>
-      {/* <Clock /> */}
-      <App />
-    </React.StrictMode>
-  )
+root.render(
+  <React.StrictMode>
+    {/* <Clock /> */}
+    {/* <App /> */}
+    <NotificationList />
+  </React.StrictMode>
+);
 // }, 1000);
 
 // If you want to start measuring performance in your app, pass a function
