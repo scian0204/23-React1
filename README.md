@@ -1,5 +1,406 @@
 # 201930107 남궁찬 - React1
 
+## 7주차_20230413
+### chapter6 요약
+- `State`
+  - State란
+    - `리액트 컴포넌트`의 `변경 가능`한 `데이터`
+    - 컴포넌트를 개발하는 `개발자`가 `직접 정의`해서 사용
+    - `state`가 `변경`될 경우 컴포넌트가 `재렌더링`됨
+    - `렌더링`이나 `데이터 흐름`에 `사용되는 값만` state에 포함시켜야 함
+  - State의 특징
+    - `자바스크립트 객체 형태`로 존재
+    - `직접적`인 `변경`이 `불가능` 함
+    - `클래스` 컴포넌트
+      - `생성자`에서 `모든 state`를 `한 번에 정의`
+      - `state`를 `변경`하고자 할 때에는 꼭 `setState()함수`를 `사용`해야 함
+    - `함수` 컴포넌트
+      - `useState()훅`을 사용하여 `각각의 state`를 `정의`
+      - `각 state별`로 주어지는 `set함수`를 `사용`하여 state값을 변경
+
+### 훅이란?
+- 클래스형 컴포넌트에서는 생성자(constructor)에서 state를 정의하고, setStae() 함수를 통해 state를 업데이트 함
+- `예전`에 `사용`하던 `함수형 컴포넌트`는 별도로 `state`를 `정의`하거나, 컴포넌트의 `생명주기`에 맞춰서 어떤 코드가 실행되도록 `할 수 없었음`
+- `함수형 컴포넌트`에서도 `state`나 `생명주기 함수`의 `기능`을 `사용`하게 해주기 위해 추가된 기능이 `훅(Hook)`임
+- 함수형 컴포넌트도 훅을 사용하여 클래스형 컴포넌트의 기능을 `모두 동일`하게 `구현`할 수 있게 됨
+- Hook이란 `'state와 생명주기 기능에 갈고리를 걸어 원하는 시점에 정해진 함수를 실행되도록 만든 함수'`를 의미함
+- `훅의 이름`은 모두 `'use'로 시작`함
+- `사용자 정의 훅(custom hook)`을 만들 수 있으며, 이 경우에 이름은 자유롭게 할 수 있으나 `'use'로 시작`할 것을 권장함(`꼭 그래야 함 오류 혹은 warning이 나옴`)
+
+### useState
+- `useState`는 `함수형 컴포넌트`에서 `state`를 `사용`하기 위한 `Hook`임
+``` JSX
+import React, { useState } from "react";
+
+function Counter(props) {
+  var count = 0;
+
+  return (
+    <div>
+      <p>총 {count}번 클릭했습니다.</p>
+      <button onClick={()=>count++}>
+        클릭
+      </button>
+    </div>
+  );
+}
+```
+▼▼▼
+``` JSX
+import React, { useState } from "react";
+
+function Counter(props) {
+  const [count, setCount] = useState(0)
+
+  return (
+    <div>
+      <p>총 {count}번 클릭했습니다.</p>
+      <button onClick={()=>setCount(count+1)}>
+        클릭
+      </button>
+    </div>
+  );
+}
+```
+- 첫번쨰 항목은 `state`의 `이름`
+- 두번쨰 항목은 `state`의 `set함수`
+- `함수 호출`시 `state`의 `초기값` 설정
+- `함수의 리턴 값`은 `배열`의 형태
+
+### useEffect
+- useState와 함꼐 `가장 많이 사용`하는 `Hook`임
+- 이 함수는 `사이드 이펙트`를 `수행`하기 위한 것임
+- 영어로 `side effect`는 `부작용`을 의미함. `일반적`으로 `프로그래밍`에서 사이드 이펙트는 `'개발자'가 의도하지 않은 코드`가 `실행`되면서 `버그`가 `발생`하는 것'을 말함
+- 하지만 리액트에서는 `효과` 또는 `영향`을 뜻하는 `effect`의 `의미`에 가까움
+- 예를 들면 서버에서 데이터를 받아오거나 수동으로 DOM을 변경하는 등의 작업을 의미함
+- 이 작업을 이펙트라고 부르는 이유는 `이 작업들`이 `다른 컴포넌트`에 `영향`을 `미칠 수 있으며`, `렌더링 중`에는 `작업`이 `완료될 수 없기 때문`임. `렌더링`이 `끝난 이후`에 `실행되어야 하는 작업`들임
+- `클래스 컴포넌트`의 `생명주기 함수`와 `같은 기능`을 `하나로 통합`한 기능을 제공합니다.
+- *저자는 useEffect가 side effect가 아니라 effect에 가깝다고 설명하고 있지만, 이것은 부작용의 의미를 잘못 해석해서 생긴 오해임. 부작용의 부를 不로 생각했기 때문임.
+- 결국 sideEffect는 렌더링 외에 실행해야 하는 부수적인 코드를 의미함
+- 예를 들면 네트워크 레퀘스트, DOM 수동 조작, 로깅 등은 정리(clean-up)가 필요 없는 경우들임
+- useEffect()함수는 다음과 같이 사용함
+- 첫 번째 파라미터는 이펙트 함수가 들어가고, 두 번째 파라미터로는 의존성 배열이 들어감
+- `useEffect(이펙트 함수, [의존성 배열])`
+- 의존성 배열은 이펙트가 의존하고 있는 배열로, 배열 안에 있는 변수 중에 하나라도 값이 변경되었을 때 이펙트 함수가 실행 됨
+- 이펙트 함수는 처음 컴포넌트가 렌더링 된 이후, 그리고 재 렌더링 이후에 실행됨
+- 만약 이펙트 함수가 마운트와 언마운트 될 때만 한 번씩 실행되게 하고 싶으면 빈 배열을 넣으면 됨. 이 경우 props나 state에 있는 어떤 값에도 의존하지 않기 떄문에 여러 번 실행되지 않음
+- 의존성 배열을 생략하는 경우 업데이트될 떄마다 호출됨
+``` JSX
+import React, { useState, useEffect } from "react";
+
+function Counter(props) {
+  count [count, setCount] = useState(0);
+
+  // componentDidMount, componentDidUpdate와 비슷하게 작동함
+  useEffect(() => {
+    // 브라우저 API를 사용해서 document의 title을 업데이트 함
+    document.title = `총 ${count}번 클릭했습니다.`;
+  })
+
+  return (
+    <div>
+      <p>총 {count}번 클릭했습니다.</p>
+      <button onClick={()=>setCount(count+1)}>
+        클릭
+      </button>
+    </div>
+  );
+}
+```
+- `배열없이` `useEffect`를 `사용`했기 떄문에 `DOM`이 `변경된 이후`에 `해당 이펙트 함수`를 `실행`하라는 의미임
+- `componentWillUnmount()`와 `동일`한 `기능 구현 방법`
+``` JSX
+import React, { useState, useEffect } from "react";
+
+function UserStatusWithCOunter(props) {
+  const [const, setCount] = useState(0);
+  useEffect(() => {
+    document.title = `총 ${count}번 클릭했습니다.`;
+  });
+
+  const [isOnline, setIsOnline] = useState(null);
+  useEffect(() => {
+    ServerAPI.subscribeUserStatus(props.user.id, handleStatusChange);
+    return () => {
+      ServerAPI.unsubscriveUserStatus(props.user.id, handleStatusChange);
+    };
+  });
+
+  function handleStatusChange(status) {
+    setIsOnline(status.isOnline);
+  }
+
+  return (
+    <div>
+      <p>총 {count}번 클릭했습니다.</p>
+      <button onClick={()=>count++}>
+        클릭
+      </button>
+    </div>
+  );
+}
+```
+- 정리
+``` JSX
+useEffect(() => {
+  // 컴포넌트가 마운트 된 이후,
+  // 의존성 배열에 있는 변수들 중 하나라도 값이 변경되었을 때 실행됨
+  // 의존성 배열에 빈 배열([])을 넣으면 마운트와 언마운트시에 단 한 번씩만 실행됨
+  // 의존성 배열 생략 시 컴포넌트 업데이트 시마다 실행됨
+  return () => {
+    // 컴포넌트가 마운트 해제되기 전에 실행됨
+  }
+}, [의존성 변수1, 의존성 변수2, ...]);
+```
+
+### useMemo
+- `useMemo()` 혹은 `Memoized value`를 `리턴`하는 훅임
+- `이전 계산값`을 갖고 있기 때문에 `연산량`이 `많은 작업`의 `반복`을 `피할 수 있음`
+- 이 훅은 `렌더링`이 `일어나는 동안 실행`됨
+- 따라서 렌더링이 일어나는 동안 `실행되서는 않될 작업`을 `넣으면 안됨`.
+``` JSX
+const memoizedValueValue = useMemo(
+  () => {
+    // 연산량이 높은 작업을 수행하여 결과를 반환
+    return computeExpensiveValue(의존성 변수1, 의존성 변수2);
+  },
+  [의존성 변수1, 의존성 변수2]
+);
+```
+- `의존성 배열`을 `넣지 않을 경우`, `렌더링`이 `일어날 떄마다` `매번` 함수가 `실행`됨
+- 따라서 `의존성 배열`을 `넣지 않는 것은` `의미가 없음`
+- 만약 `빈 배열`을 넣게 되면 `컴포넌트 마운트 시에만` `함수`가 `실행`됨
+
+### useCallback
+- `useCallback()` 훅은 `useMemo()`와 `유사`한 역할을 함
+- `차이점`은 `값이 아닌` `함수`를 `반환`한다는 점임
+- `의존성 배열`을 `파라미터`로 받는 것은 `useMemo`와 `동일`함
+- `파라미터`로 받은 `함수`를 `콜백`이라고 부름
+- `useMemo`와 마찬가지로 `의존성 배열` 중 하나라도 `변경`되면 `콜백함수`를 `반환`함
+``` JSX
+const memoizedCallback = useCallback(
+  () => {
+    doSomething(의존성 변수1, 의존성 변수2);
+  },
+  [의존성 변수1, 의존성 변수2]
+);
+```
+
+### useRef
+- `useRef()` 훅은 `레퍼런스`를 `사용`하기 위한 훅임
+- `레퍼런스`란 `특정 컴포넌트`에 `접근`할 수 있는 `객체`를 의미함
+- `useRef()`훅은 바로 이 `레퍼런스 객체`를 `반환`함
+- `레퍼런스 객체`에는 `.current`라는 `속성`이 있는데, 이것은 `현재 참조`하고 있는 `엘리먼트`를 의미함
+- `const refContainer = useRef(초깃값);`
+- 이렇게 `반환`된 `레퍼런스 객체`는 `컴포넌트`의 `라이프타임 전체`에 `걸쳐서 유지`됨
+- 즉, `컴포넌트`가 `마운트 해제 전까지`는 `계속 유지`된다는 의미임
+``` JSX
+function TextInputWithFocusButton(props) {
+  const inputElem = useRef(null);
+
+  const onButtonClick = () => {
+    // 'current'는 마운트된 input element를 가리킴
+    inputElem.current.focus();
+  };
+
+  return (
+    <>
+      <input ref={inputElem} type="text" />
+      <button onClick={onButtonCLick}>Focus the input</button>
+    </>
+  )
+}
+```
+
+### 훅의 규칙
+1. `무조건` `최상의 레벨`에서만 `호출`해야 함
+   - 여기서 `최상위`는 `컴포넌트`의 `최상위 레벨`을 의미함
+   - 따라서 `반복문`이나 `조건문` 또는 `중첩된 함수`들 `안`에서 훅을 호출하면 안됨
+   - 이 규칙에 따라 훅은 `컴포넌트`가 `렌더링` 될 때마다 `같은 순서`로 `호출`되어야 함
+``` JSX
+function MyComponent(props) {
+  const [name, setName] = useState('Inje');
+
+  if (name != '') {
+    useEffect(() => {
+      ...
+    });
+  }
+  ...
+}
+```
+   - 위의 코드는 조건에 따라 호출됨으로 잘못된 코드임
+2. 리액트 `함수형 컴포넌트`에서만 훅을 `호출`해야 함
+   - 따라서 `일반 자바스크립트 함수`에서 훅을 `호출하면 안됨`
+   - 훅은 리액트의 `함수형 컴포넌트` 혹은 직접 만든 `커스텀 훅`에서만 `호출`할 수 있음
+
+
+### 나만의 훅 만들기
+- 필요하다면 직접 `훅`을 `만들어` 쓸 수도 있음. 이것을 `커스텀 훅` 이라고 함
+1. 커스텀 훅을 만들어야 하는 상황
+``` JSX
+import React, { useState, useEffect } from "react";
+
+function UserStatus(props) {
+  const [isOnline, setIsOnline] = setState(null);
+
+  useEffect(() => {
+    function handleStatusChange(status) {
+      setIsOnline(status.isOnline);
+    }
+
+    ServerAPI.subscriveUserStatus(props.user.id, handleStatusChange);
+    return () => {
+      ServerAPI.unsubscriveUserStatus(props.user.id, handleStatusChange);
+    };
+  });
+
+  if(isOnline === null) {
+    return '대기중...';
+  }
+
+  return isOnline ? '온라인' : '오프라인';
+}
+```
+- 예제 UserStatus 컴포넌트는 isOnline이라는 state에 따라서 사용자의 상태가 온라인인지 아닌지를 텍스트로 보여주는 컴포넌트임
+
+- 다음 예는 연락처 목록을 제공하면서 사용자의 이름은 초록색으로 표시하는 UserListItem 컴포넌트임
+``` JSX
+import React, { useState, useEffect } from "react";
+
+function UserListItem(props) {
+  const [isOnline, setIsOnline] = setState(null);
+
+  useEffect(() => {
+    function handleStatusChange(status) {
+      setIsOnline(status.isOnline);
+    }
+
+    ServerAPI.subscriveUserStatus(props.user.id, handleStatusChange);
+    return () => {
+      ServerAPI.unsubscriveUserStatus(props.user.id, handleStatusChange);
+    };
+  });
+
+  return (
+    <li style={{ color: isONline ? 'green' : 'black' }}>
+      {props.user.name}
+    </li>
+  );
+```
+
+2. 커스텀 훅 추출하기
+- `두 개`의 `자바스크립트 함수`에서 `하나의 로직`을 `공유`하도록 하고 싶을 때 `새로운 함수`를 하나 `만드는 방법`을 `사용`함
+- 리액트 `컴포넌트`와 `훅`은 모두 `함수`이기 때문에 `동일한 방법`을 `사용`할 수 있음
+- `이름`을 `use로 시작`하고, `내부`에서 `다른 훅`을 `호출`하는 `자바스크립트 함수`를 만들면 됨
+- 아래 코드는 중복되는 로직을 useUserStatus()라는 커스텀 훅으로 추출해낸 것임.
+``` JSX
+import React, { useState, useEffect } from "react";
+
+function useUserStatus(userId) {
+  const [isOnline, setIsOnline] = setState(null);
+
+  useEffect(() => {
+    function handleStatusChange(status) {
+      setIsOnline(status.isOnline);
+    }
+
+    ServerAPI.subscriveUserStatus(userId, handleStatusChange);
+    return () => {
+      ServerAPI.unsubscriveUserStatus(userId, handleStatusChange);
+    };
+  });
+  
+  return isOnline;
+}
+```
+- 한가지 `주의할 점`은 `일반 컴포넌트`와 마찬가지로 `다른 훅`을 `호출`하는 것은 무조건 `커스텀 훅`의 `최상위 레벨`에서만 해야 함
+- `커스텀 훅`은 `일반 함수`와 `같다`고 생각해도 됨.
+- 다만 `이름`은 `use`로 `시작`하도록 해야 함
+
+3. `커스텀 훅` `사용`하기
+- 먼저 작성했던 코드를 사용자 훅을 사용해서 수정하면 다음과 같음
+``` JSX
+function UserStatus(props) {
+  const isOnline = useUserStatus(props.user.id);
+
+  if(isOnline === null) {
+    return '대기중...';
+  }
+
+  return isOnline ? '온라인' : '오프라인';
+}
+
+function UserListItem(props) {
+  const isOnline = useUserStatus(props.user.id);
+
+  return (
+    <li style={{ color: isONline ? 'green' : 'black' }}>
+      {props.user.name}
+    </li>
+  );
+}
+```
+
+### 실습
+- useCounter.jsx
+```JSX
+import React, { useState } from 'react';
+
+function useCounter(initialValue) {
+    const [count, setCount] = useState(initialValue);
+
+    const increaseCount = () => setCount((count) => count + 1);
+    const decreaseCount = () => setCount((count) => Math.max(count - 1, 0));
+
+    return [count, increaseCount, decreaseCount];
+}
+
+export default useCounter;
+```
+- Accommodate.jsx
+``` JSX
+import React, { useState, useEffect } from 'react';
+import useCounter from './useCounter';
+
+const MAX_CAPACITY = 10;
+
+function Accommodate(props) {
+    const [isFull, setIsFull] = useState(false);
+    const [isZero, setIsZero] = useState(false); // 추가
+    const [count, increaseCount, decreaseCount] = useCounter(0);
+
+    useEffect(() => {
+        console.log("=============");
+        console.log("useEffect() is called.");
+        console.log(`isFull: ${isFull}`);
+    });
+
+    useEffect(() => {
+        setIsFull(count >= MAX_CAPACITY);
+        setIsZero(count <= 0); // 추가
+        console.log(`Current count value: ${count}`);
+    });
+
+    return (
+        <div style={{padding : 16}}>
+            <p>{`총 ${count}명 수용했습니다.`}</p>
+
+            <button onClick={increaseCount} disabled={isFull}>
+                입장
+            </button>
+            <button onClick={decreaseCount} disabled={isZero/*추가*/}>퇴장</button>
+
+            {isFull && <p style={{ color: "red" }}>정원이 가득찼습니다.</p>}
+        </div>
+    );
+}
+
+export default Accommodate;
+```
+- &&은 삼항연산자처럼 참일때만 뒤에있는 것을 실행함
+
+---
 ## 6주차_20230406
 ### class, id
 - 리액트에선 `자바스크립트`의 `class`와 `HTML`의 `class`를 구분하기 위해 `HTML`의 `class`를 `className`으로 씀.
