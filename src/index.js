@@ -2,7 +2,7 @@ import React from 'react';
 import ReactDOM from 'react-dom/client';
 import './index.css';
 import reportWebVitals from './reportWebVitals';
-import NotificationList from './chapter_06/NotificationList';
+import Accommodate from './chapter_07/Accommodate';
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 // setInterval(()=>{
@@ -10,7 +10,8 @@ root.render(
   <React.StrictMode>
     {/* <Clock /> */}
     {/* <App /> */}
-    <NotificationList />
+    {/* <NotificationList /> */}
+    <Accommodate />
   </React.StrictMode>
 );
 // }, 1000);
