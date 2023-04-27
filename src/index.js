@@ -4,6 +4,7 @@ import './index.css';
 import reportWebVitals from './reportWebVitals';
 import Accommodate from './chapter_07/Accommodate';
 import ConfirmButton from './chapter_08/ConfirmButton';
+import LandingPage from './chapter_09/LandingPage';
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 // setInterval(()=>{
@@ -13,7 +14,8 @@ root.render(
     {/* <App /> */}
     {/* <NotificationList /> */}
     {/* <Accommodate /> */}
-    <ConfirmButton />
+    {/* <ConfirmButton /> */}
+    <LandingPage />
   </React.StrictMode>
 );
 // }, 1000);
