@@ -3,6 +3,7 @@ import ReactDOM from 'react-dom/client';
 import './index.css';
 import reportWebVitals from './reportWebVitals';
 import Accommodate from './chapter_07/Accommodate';
+import ConfirmButton from './chapter_08/ConfirmButton';
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 // setInterval(()=>{
@@ -11,7 +12,8 @@ root.render(
     {/* <Clock /> */}
     {/* <App /> */}
     {/* <NotificationList /> */}
-    <Accommodate />
+    {/* <Accommodate /> */}
+    <ConfirmButton />
   </React.StrictMode>
 );
 // }, 1000);
