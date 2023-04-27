@@ -1,5 +1,415 @@
 # 201930107 남궁찬 - React1
 
+## 9주차_20230427
+### 이벤트 처리
+- `DOM`에서 클릭 이벤트
+``` HTML
+<button onclick="activate()">
+  Activate
+</button>
+```
+- `React`에서 클릭 이벤트
+``` JSX
+<button onClick={activate}>
+  Activate
+</button>
+```
+- 둘의 차이점
+  1. 이벤트 이름이 `onclick`에서 `onClick`으로 변경 (`Camel case`)
+  2. 전달하려는 함수는 `문자열`에서 `함수 그대로` 전달
+- 이벤트가 발생했을 때 해당 이벤트를 처리하는 함수를 "`이벤트 핸들러`(`Event Handler`)" 또는 이벤트 발생을 계속 듣고 있다는 의미로 "`이벤트 리스너`(`Event Listener`)"라고 함
+- `이벤트 핸들러` 추가 방법
+``` JSX
+class Toggle extends React.Component {
+  constructor(props) {
+    super(props);
+
+    this.state = { isToggleOn: true };
+
+    // callback에서 'this'를 사용하기 위해서는 바인딩을 필수적으로 해줘야 합니다.
+    this.handleClick = this.handleClick.bind(this);
+  }
+
+  handleClick() {
+    this.setState(prevState => ({
+      isToggleOn: !prevState.isToggleOn
+    }))
+  }
+
+  render() {
+    return (
+      <button onClick={this.handleClick}>
+        {this.state.isToggleOn ? '켜짐' : '꺼짐'}
+      </button>
+    );
+  }
+}
+```
+- 버튼 클릭 시 이벤트 핸들러 함수인 `handleClick()`함수를 호출하도록 돼있음
+- 상속받고 있는 `React.Component`와 겹치지 않도록 `this`를 사용
+- `bind`를 사용하지 않으면 `this.handleClick`은 `글로벌 스코프`에서 호출되어, `undefined`으로 사용할 수 없기 때문
+- `bind`를 사용하지 않으려면 `화살표 함수`를 사용하는 방법도 있음
+``` JSX
+class MyButton extends React.Component {
+  handleClick = () => {
+    console.log(`this is: ${this}`);
+  }
+
+  render() {
+    return (
+      <button onClick={this.handleClick}>
+        클릭
+      </button>
+    );
+  }
+}
+```
+- `클래스 컴포넌트`는 이제 거의 사용하지 않기 때문에 이 내용은 참고만 함
+
+- `함수형 컴포넌트`에서 사용법
+``` JSX
+function Toggle(props) {
+  const [ isToggleOn, setIsToggleOn ] = useState(true);
+
+  // 방법 1. 함수 안에 함수로 정의
+  function handleClick() {
+    setIsToggleOn((isToggleOn) => !isToggleOn);
+  }
+
+  // 방법 2. arrow function을 사용하여 정의
+  const handleClick = () => {
+    setIsToggleOn((isToggleOn) => !isToggleOn);
+  }
+
+  return (
+    <button onClick={handleClick}>
+      {isToggleOn ? "켜짐" : "꺼짐"}
+    </button>
+  );
+}
+```
+- `함수형`에서 `이벤트 핸들러`를 정의하는 방법은 `두 가지` 있음
+- `함수형`에서는 `this`를 사용하지 않고, `onClick`에서 바로 `handleClick`을 넘기면 됨
+
+### Arguments 전달
+- 함수를 `정의`할 때는 `파라미터`(`Parameter`) 혹은 `매개변수`,   
+함수를 `사용`할 때는 `아귀먼트`(`Argument`) 혹은 `인자`라고 부름
+- `이벤트 핸들러`에 `매개변수`를 `전달`해야 하는 경우도 많음
+``` JSX
+<button onCLick={(event) => this.deleteItem(id, event)}>삭제하기</button>
+<button onCLick={this.deleteItem.bind(this, id)}>삭제하기</button>
+```
+- 위 코드는 모두 동일한 역할을 하지만 하나는 `화살표 함수`, 다른 하나는 `bind`를 사용함
+- `event`라는 `매개변수`는 `리액트`의 `이벤트 객체`를 의미함
+- 두 방법 모두 첫 번째 매개변수는 `id`이고 두 번째 매개변수로 `event`가 전달됨 (`bind`는 반드시 `this`를 `인자`로 넣어야 함)
+- 첫 번째 코드는 명시적으로 `event`를 `매개변수`로 넣어 주었고, 두 번째 코드는 `id` 이후 두번째 매개변수로 `event`가 `자동 전달`됨. (이 방법은 클래스형에서 사용하는 방법임)
+
+- `매개변수`와 같이 사용자가 직접 지정하는 식별자를 설명할 때는 `메타변수`를 사용하는 것이 좋음(`foo`, `foobar` 등)
+
+- `함수형 컴포넌트`에서 `이벤트 핸들러`에 `매개변수`를 `전달`할 때
+``` JSX
+function MyButton(props) {
+  const handleDelete = (id, event) => {
+    console.log(id, event);
+  }
+
+  return (
+    <button onClick={(event) => this.handleDelete(1, event)}>
+      삭제하기
+    </button>
+  );
+}
+```
+
+### 실습
+1. `ConfirmButton` 컴포넌트 만들기
+2. `클래스` 필드문법 사용하기
+``` JSX
+import React from 'react';
+
+class ConfirmButton extends React.Component {
+  constructor(props) {
+    super(props);
+
+    this.state = {
+      isConfirmed: false,
+    };
+
+    this.handleConfirm = this.handleConfirm.bind(this);
+  }
+
+  handleConfirm() {
+    this.setState((prevState) => ({
+      isConfirmed: !prevState.isConfirmed,
+    }));
+  }
+
+  render() {
+    return (
+      <button onClick={this.handleConfirm} disabled={this.state.isConfirmed}>
+        {this.state.isConfirmed ? '확인됨' : '확인하기'}
+      </button>
+    );
+  }
+}
+
+export default ConfirmButton;
+```
+3. `함수 컴포넌트`로 변경하기
+``` JSX
+import React from 'react';
+import { useState } from 'react';
+
+function ConfirmButton(props) {
+  const [isConfirmed, setIsConfirmed] = useState(false);
+
+  const handleConfirm = () => {
+    setIsConfirmed((prevIsConfirmed) => !prevIsConfirmed);
+  };
+
+  return (
+    <button onClick={handleConfirm} disabled={isConfirmed}>
+      {isConfirmed ? '확인됨' : '확인하기'}
+    </button>
+  );
+}
+
+export default ConfirmButton;
+```
+
+### chapter8 요약
+- `이벤트`란
+  - 사용자가 버튼을 클릭하는 등의 `사건`을 의미
+- `이벤트 처리`하기
+  - `DOM`의 `이벤트`
+    - `이벤트`의 이름을 `모두 소문자`로 표기
+    - `이벤트 처리 함수`를 `문자열`로 전달
+  - `리엑트`의 `이벤트`
+    - `이벤트`의 이름을 `카멜 표기법`으로 표기
+    - `이벤트 처리 함수`를 `그대로 전달`
+  - `이벤트 핸들러`
+    - `이벤트` `발생`시 `해당` `이벤트 처리 함수`
+    - `이벤트 리스너`라 부르기도 함
+    - `클래스 컴포넌트`
+      - `클래스`의 `함수로 정의` 후 `생성자`에서 `바인딩` 해서 사용
+      - 클래스 필드 문법도 사용 가능
+    - `함수 컴포넌트`
+      - `함수 안`에 `함수`로 `정의`하거나 `arrow function`을 사용하여 `정의`
+  - `Arguments` 전달하기
+    - `Arguments`란
+      - `함수`에 `전달`할 `데이터`
+      - `파라미터` 또는 `매개변수`라고도 부름
+    - 클래스 컴포넌트
+      - `arrow funciton`을 사용하거나 `Function.prototype.bind`를 사용하여 `전달`
+    - 함수 컴포넌트
+      - `이벤트 핸들러` `호출` 시 `원하는 순서대로` 매개변수를 넣어서 `전달`
+
+### 조건부 렌더링
+- 여기서 `조건`이란 `조건문`의 `조건`임
+``` JSX
+function Greeting(props) {
+  const isLoggedIn = props.isLoggedIn;
+  if (isLoggedIn) {
+    return <UserGreeting />;
+  }
+  return <GuestGreeting />;
+}
+```
+- `props`로 전달 받은 `isLoggedIn`이 `true`이면 `<UserGreeting />`을, `false`면 `<GuestGreeting />`을 `return` 함
+- 이와 같은 `렌더링`을 `조건부 렌더링` 이라고 함
+
+### 엘리먼트 변수
+- `렌더링`해야 될 `컴포넌트`를 `변수`처럼 사용하는 방법
+``` JSX
+let button;
+is (isLoggedIn) {
+  button = <LogoutButton onClick={handleLogoutClick} />;
+} else {
+  button = <LoginButton onClick={handleLoginClick} />;
+}
+
+return (
+  <div>
+    <Greeting isLoggedIn={isLoggedIn} />
+    {button}
+  </div>
+);
+```
+- `state`에 따라 `button` 변수에 `컴포넌트의 객체`를 `저장`하여 `return`문에서 사용
+
+### 인라인 조건
+- 필요한 곳에 조건문을 직접 넣어 사용하는 방법
+1. `인라인 if`
+   - `if`문을 직접 사용하지 않고, 동일한 효과를 내기 위해 `&&` `논리 연산자`를 사용
+   - `&&`는 `and연산자`로 `모든 조건`이 `참`일때만 `참`이 됨
+   - `첫 번째 조건`이 `거짓`이면 `두번째 조건`은 `판단`할 `필요`가 `없음` -> `단축 평가`
+     - `true && expression -> expression`
+     - `false && expression -> false`
+``` JSX
+{unreadMessages.length > 0 &&
+  <h2>
+    현재 {unreadMessages.length}개의 읽지 않은 메시지가 있습니다.
+  </h2>
+}
+```
+   - 판단만 하지 않는 것이고 결과 값은 그대로 리턴됨
+``` JSX
+function Counter(props) {
+  const count = 0;
+
+  return (
+    <div>
+      {count && <h1>현재 카운트: {count}</h1>}
+    </div>
+  );
+}
+```
+
+### 인라인 if-else
+- `삼항 연산자`를 사용. `조건문 / 참일 경우 ; 거짓일 경우`
+- `문자열`이나 `엘리먼트`를 넣어서 사용할 수도 있음
+``` JSX
+function UserStatus(props) {
+  return (
+    <div>
+      이 사용자는 현재 <b> { props.isLoggedIn ? '로그인' : '로그인하지 않은' } </b> 상태입니다.
+    </div>
+  )
+}
+```
+``` JSX
+<div>
+  <Greeting isLoggedIn={isLoggedIn} />
+  {isLoggedIn
+    ? <LogoutButton onCLick={handleLogoutClick} />
+    : <LoginButton onCLick={handleLoginClick} />
+  }
+</div>
+```
+
+### 컴포넌트 렌더링 막기
+- `컴포넌트`를 `렌더링하고 싶지 않을 때`에는 `null`을 `리턴`함
+``` JSX
+function WarningBanner(props) {
+  if (!props.warning) {
+    return null;
+  }
+
+  return (
+    <div>경고!</div>
+  );
+}
+```
+``` JSX
+function MainPage(props) {
+  const [ showWarning, setShowWarning ] = useState(false);
+  
+  const handleToggleClick = () => {
+    setShowWarning(prevShowWarning => !prevShowWarning);
+  }
+
+  return (
+    <div>
+      <WarningBanner warning={showWarning} />
+      <button onClick={handleToggleClick}>
+        {showWarning ? "감추기" : "보이기"}
+      </button>
+    </div>
+  );
+}
+```
+
+### 실습
+1. `Toolbar` 컴포넌트
+``` JSX
+import React from 'react';
+
+const styles = {
+  wrapper: {
+    padding: 16,
+    display: 'flex',
+    flexDirection: 'row',
+    borderBottom: '1px solid grey',
+  },
+  greeting: {
+    marginRight: 8,
+  },
+};
+
+function Toolbar(props) {
+  const { isLoggedIn, onClickLogin, onClickLogout } = props;
+
+  return (
+    <div style={styles.wrapper}>
+      {isLoggedIn && <span style={styles.greeting}>환영합니다!</span>}
+
+      {isLoggedIn ? (
+        <button onClick={onClickLogout}>로그아웃</button>
+      ) : (
+        <button onClick={onClickLogin}>로그인</button>
+      )}
+    </div>
+  );
+}
+
+export default Toolbar;
+```
+2. `LandingPage` 컴포넌트
+``` JSX
+import React, { useState } from 'react';
+import Toolbar from './Toolbar';
+
+function LandingPage(props) {
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+
+  const onClickLogin = () => {
+    setIsLoggedIn(true);
+  };
+
+  const onClickLogout = () => {
+    setIsLoggedIn(false);
+  };
+
+  return (
+    <div>
+      <Toolbar
+        isLoggedIn={isLoggedIn}
+        onClickLogin={onClickLogin}
+        onClickLogout={onClickLogout}
+      />
+      <div style={{ padding: 16 }}>소플과 함께하는 리액트 공부!</div>
+    </div>
+  );
+}
+
+export default LandingPage;
+```
+
+### chapter9 요약
+- `조건부 렌더링`
+  - `조건`에 따라 `렌더링`의 `결과`가 `달라지도록` 하는 것
+- `엘리먼트 변수`
+  - `리액트 엘리먼트`를 `변수`처럼 `저장`해서 `사용`하는 방법
+- `인라인 조건`
+  - `조건문`을 `코드 안`에 집어넣는 것
+  - `인라인 if`
+    - `if문`을 `필요한 곳`에 `직접` 집어넣어서 `사용`하는 방법
+    - `논리 연산자` `&&`를 사용 (`AND 연산`)
+    - 앞에 나오는 `조건문`이 `true`일 `경우에만` 뒤에 나오는 `엘리먼트`를 `렌더링`
+  - `인라인 if-else`
+    - `if-else문`을 `필요한 곳`에 `직접` 집어 넣어서 `사용`하는 방법
+    - `삼항 연산자` ?를 사용
+    - 앞에 나오는 `조건문`이 `true`면 `첫 번째 항목`을 `리턴`. `false`면 `두 번째 항목`을 `리턴`
+    - `조건`에 따라 각기 `다른 엘리먼트`를 `렌더링`하고 싶을 때 `사용`
+  - `컴포넌트 렌더링 막기`
+    - `리액트`에서는 `null`을 `리턴`하면 `렌더링되지 않음`
+    - `특정 컴포넌트`를 `렌더링하고 싶지 않을` 경우 `null`을 `리턴`하면 됨
+
+---
+## 8주차_20230420
+중간고사
+
+---
 ## 7주차_20230413
 ### chapter6 요약
 - `State`
@@ -62,8 +472,8 @@ function Counter(props) {
   );
 }
 ```
-- 첫번쨰 항목은 `state`의 `이름`
-- 두번쨰 항목은 `state`의 `set함수`
+- 첫번째 항목은 `state`의 `이름`
+- 두번째 항목은 `state`의 `set함수`
 - `함수 호출`시 `state`의 `초기값` 설정
 - `함수의 리턴 값`은 `배열`의 형태
 
@@ -83,8 +493,8 @@ function Counter(props) {
 - `useEffect(이펙트 함수, [의존성 배열])`
 - 의존성 배열은 이펙트가 의존하고 있는 배열로, 배열 안에 있는 변수 중에 하나라도 값이 변경되었을 때 이펙트 함수가 실행 됨
 - 이펙트 함수는 처음 컴포넌트가 렌더링 된 이후, 그리고 재 렌더링 이후에 실행됨
-- 만약 이펙트 함수가 마운트와 언마운트 될 때만 한 번씩 실행되게 하고 싶으면 빈 배열을 넣으면 됨. 이 경우 props나 state에 있는 어떤 값에도 의존하지 않기 떄문에 여러 번 실행되지 않음
-- 의존성 배열을 생략하는 경우 업데이트될 떄마다 호출됨
+- 만약 이펙트 함수가 마운트와 언마운트 될 때만 한 번씩 실행되게 하고 싶으면 빈 배열을 넣으면 됨. 이 경우 props나 state에 있는 어떤 값에도 의존하지 않기 때문에 여러 번 실행되지 않음
+- 의존성 배열을 생략하는 경우 업데이트될 때마다 호출됨
 ``` JSX
 import React, { useState, useEffect } from "react";
 
@@ -107,7 +517,7 @@ function Counter(props) {
   );
 }
 ```
-- `배열없이` `useEffect`를 `사용`했기 떄문에 `DOM`이 `변경된 이후`에 `해당 이펙트 함수`를 `실행`하라는 의미임
+- `배열없이` `useEffect`를 `사용`했기 때문에 `DOM`이 `변경된 이후`에 `해당 이펙트 함수`를 `실행`하라는 의미임
 - `componentWillUnmount()`와 `동일`한 `기능 구현 방법`
 ``` JSX
 import React, { useState, useEffect } from "react";
@@ -167,7 +577,7 @@ const memoizedValueValue = useMemo(
   [의존성 변수1, 의존성 변수2]
 );
 ```
-- `의존성 배열`을 `넣지 않을 경우`, `렌더링`이 `일어날 떄마다` `매번` 함수가 `실행`됨
+- `의존성 배열`을 `넣지 않을 경우`, `렌더링`이 `일어날 때마다` `매번` 함수가 `실행`됨
 - 따라서 `의존성 배열`을 `넣지 않는 것은` `의미가 없음`
 - 만약 `빈 배열`을 넣게 되면 `컴포넌트 마운트 시에만` `함수`가 `실행`됨
 
@@ -477,7 +887,7 @@ function Comment(props) {
 ```
 
 ### 이미지 삽입
-- 배포는 `public` 폴더의 `index.html`에서 `최종 배포`가 되기 떄문에 `index.html 기준`으로 `이미지 경로`를 지정해줘야 함
+- 배포는 `public` 폴더의 `index.html`에서 `최종 배포`가 되기 때문에 `index.html 기준`으로 `이미지 경로`를 지정해줘야 함
 - 굳이 그 밖에 있는 이미지를 넣고 싶으면 하나하나 `import`를 해줘야 함
 
 ### 실습
@@ -598,7 +1008,7 @@ export default CommentList;
         - ES6의 클래스를 사용하여 만들어진 컴포넌트
   - 컴포넌트 이름 짓기
     - 컴포넌트의 이름은 항상 `대문자`로 시작해야 함
-    - 소문자로 시작할 경우 컴포넌트를 DOM 태그로 인식하기 떄문
+    - 소문자로 시작할 경우 컴포넌트를 DOM 태그로 인식하기 때문
   - 컴포넌트 `렌더링`
     - 컴포넌트로부터 `엘리먼트`를 `생성`하여 이를 `리액트 DOM`에 `전달`
 - 컴포넌트 `합성`
@@ -1382,7 +1792,7 @@ const element = <img href={user.avatarUrl}></img>;
   - key와 key value로 이루어짐
   - ` { key1: value1, key2: value2,...} `
 - 연산자
-  - `a = 1`, `b = "1"`일떄 
+  - `a = 1`, `b = "1"`일때 
     - `a == b` --> True
     - `a === b` --> False
 - 함수
