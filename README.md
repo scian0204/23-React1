@@ -1,5 +1,440 @@
 # 201930107 남궁찬 - React1
 
+## 10주차_20230504
+### 리스트와 키
+- `리스트`: `자바스크립트`의 `변수`나 `객체`를 하나의 변수로 묶어 놓은 `배열`과 같은 것
+- `키`: `각 객체`나 `아이템`을 구분할 수 있는 `고유한 값`
+- 리액트에서는 `배열`과 `키`를 사용하는 `반복`되는 다수의 `엘리먼트`를 쉽게 `렌더링`할 수 있음
+
+### 여러 개의 컴포넌트 렌더링
+- 화면에 `반복적`으로 나타내야 할 경우 `배열`에 들어 있는 `엘리먼트`를 `map()`함수를 이용하여 렌더링
+``` javascript
+const doubled  numbers.map((number) => number * 2);
+```
+- `numbers` 배열에 들어있는 `각각의 요소`를 `map()`함수를 이용하여 `하나씩 추출`하여, 2를 곱한 후 `doubled`라는 배열에 다시 넣는 코드
+
+``` JSX
+const numbers = [1,2,3,4,5];
+const listItems = numbers.map((number) =>
+  <li>{number}</li>
+)
+```
+- `리액트`에서 `map()`함수를 사용한 예제
+- 이 코드는 `numbers`의 요소에 2를 곱하는 대신 `<li>`태그를 결합해서 리턴하고 있음
+- 리턴된 `listItems`는 `<ul>`태그와 `결합`하여 `렌더링` 됨.
+
+### 기본적인 리스트 컴포넌트
+``` JSX
+function NumberList(props) {
+  const { numbers } = props;
+
+  const listItems = numbers.map((number) => 
+    <li>{number}</li>
+  );
+
+  return (
+    <ul>{listItems}</ul>
+  );
+}
+
+const numbers = [1, 2, 3, 4, 5];
+ReactDOM.render(
+  <NumberList numbers={numbers} />,
+  document.getElementById('root')
+);
+```
+- 이 컴포넌트는 `props`로 받은 숫자를 `numbers`로 받아 `리스트`로 `렌더링`해 줌
+- 이 코드 `실행 시` "`리스트 아이템에 무조건 키가 있어야 한다"` 는 `경고 문구`가 나옴
+- 경고 문구가 나오는 이유는 `각각`의 `아이템`에 `key props가` `없기 때문`
+
+### 리스트의 키
+- `리스트`에서의 `키`는 `"리스트 에서 아이템을 구별하기 위한 고유한 문자열"`
+- 이 `키`는 `리스트`에서 어떤 `아이템`이 `변경`, `추가` 또는 `제거`되었는지 `구분`하기 위해 사용됨
+- `키`는 `같은 리스트`에 있는 `엘리먼트 사이`에서만 `고유한 값`이면 됨
+- `키값`으로 `인덱스`를 사용 - `배열`에서 `아이템`의 `순서`가 `바뀌는 경우`가 있어 `권장하지 않음`(`사용X`)
+```JSX
+const todoItems = todos.map((todo, index) => 
+  // 아이템들의 고유한 ID가 없을 경우에만 인덱스 사용
+  <li key={index}>
+    {todo.text}
+  </li>
+)
+```
+
+### 실습
+1. `AttendanceBook.jsx` 함수형 컴포넌트 생성
+``` JSX
+import React from 'react';
+
+const students = [
+    {
+        name: "Inje",
+    },
+    {
+        name: "Steve",
+    },
+    {
+        name: "Bill",
+    },
+    {
+        name: "Jeff",
+    },
+]
+
+function AttendanceBook(props) {
+    return (
+        <ul>
+            {students.map((student) => 
+                <li>{student.name}</li>
+            )}
+        </ul>
+    )
+}
+
+export default AttendanceBook;
+```
+2. `오류메시지` 확인
+   - `Warning: Each child in a list should have a unique "key" prop.`
+3. `key` 추가
+``` JSX
+import React from 'react';
+
+const students = [
+    {
+        id: 1,
+        name: "Inje",
+    },
+    {
+        id: 2,
+        name: "Steve",
+    },
+    {
+        id: 3,
+        name: "Bill",
+    },
+    {
+        id: 4,
+        name: "Jeff",
+    },
+]
+
+function AttendanceBook(props) {
+    return (
+        <ul>
+            {students.map((student) => 
+                <li key={student.id}>{student.name}</li>
+            )}
+        </ul>
+    )
+}
+
+export default AttendanceBook;
+```
+
+### chapter10 요약
+- `리스트`
+  - `같은 아이템`을 `순서대로` 모아놓은 것
+- `키`
+  - `각 객체`나 `아이템`을 `구분`할 수 있는 `고유한 값`
+- `여러 개`의 `컴포넌트 렌더링`
+  - `자바스크립`트 `배열`의 `map()`함수를 사용
+    - `배열`에 들어있는 `각 변수`에 `어떤 처리`를 한 뒤 `결과(엘리먼트)`를 `배열`로 만들어서 `리턴`함
+    - `map()`함수 안에 있는 `엘리먼트`는 꼭 `키`가 필요함
+  - 리스트의 키
+    - `리스트`에서 `아이템`을 `구분`하기 위한 `고유한 문자열`
+    - `리스트`에서 `어떤 아이템`이 `변경`, `추가` 또는 `제거`되었는지 `구분`하기 위해 사용
+    - `리액트`에서는 `키의 값`은 `같은 리스트`에 있는 `엘리먼트 사이`에서만 `고유한 값`이면 됨
+  - `다양한 키값`의 사용법
+    - `숫자 값`을 사용
+      - `배열`에 `중복된 숫자`가 들어있다면 `키값`도 `중복`되기 때문에 `고유`해야 한다는 `키값`의 `조건`이 `충족되지 않음`
+    - `id`를 사용
+      - `id`의 의미 자체가 `고유한 값`이므로 `키값`으로 `사용`하기 `적합`
+      - `id`가 있는 경우에는 보통 `id값`을 `키값`으로 사용
+    - `인덱스`를 사용
+      - `배열`에서 `아이템`의 `순서`가 `바뀔 수 있는 경우`에는 `키값`으로 `인덱스`를 `사용`하는 것을 `권장하지 않음`
+      - `리액트`에서는 키를 `명시적`으로 넣어 주지 않으면 `기본적`으로 이 `인덱스 값`을 `키값`으로 `사용`
+
+### 폼이란
+- `폼`은 일반적으로 `사용자`로부터 `입력`을 받기위한 `양식`에서 많이 사용됨
+``` HTML
+<form>
+  <label>
+    이름 : 
+    <input type="text" name="name"/>
+  </label>
+  <button type="submit">제출</button>
+</form>
+```
+
+### 제어 컴포넌트
+- `제어 컴포넌트`는 `사용자`가 `입력한 값`에 `접근`하고 `제어`할 수 있도록 해주는 `컴포넌트`
+  - `HTML 폼`: `자체적`으로 `state`를 `관리`
+  - `제어 컴포넌트`: `모든 데이터`를 `state`에서 `관리`
+
+``` JSX
+function NameForm(props) {
+  const [ value, setValue ] = useState('');
+
+  const handleChange = (event) => {
+    setValue(event.target.value);
+  }
+
+  const handleSubmit = (event) => {
+    alert('입력한 이름: ' + value);
+    event.preventDefault();
+  }
+
+  return (
+    <form onSubmit={handleSubmit}>
+      <label>
+        이름: 
+        <input type="text" value={value} onChange={handleChange} />
+      </label>
+      <button type="submit">제출</button>
+    </form>
+  )
+}
+```
+- 사용자의 이름을 입력 받는 `HTML폼`을 `리액트 제어 컴포넌트`로 만든 것
+
+### textarea 태그
+- `HTML`에는 `<textarea>`의 `children`으로 `텍스트`가 들어가는 형태
+``` HTML
+<textarea>
+  안녕하세요, 여기에 이렇게 텍스트가 들어가게 됩니다.
+</textarea>
+```
+- `리액트`에서는 `state`를 통해 `태그`의 `value`라는 `attribute`를 `변경`하여 `텍스트`를 `표시`함
+``` JSX
+function RequestForm(props) {
+  const [ value, setValue ] = useState('요청사항을 입력하세요.');
+
+  const handleChange = (event) => {
+    setValue(event.target.value);
+  }
+
+  const handleSubmit = (event) => {
+    alert('입력한 요청사항: ' + value);
+    event.preventDefault();
+  }
+
+  return (
+    <form onSubmit={hanleSubmit}>
+      <label>
+        요청사항: 
+        <textarea value={value} onChange={handleChange} />
+      </label>
+      <button type="submit">제출</button>
+    </form>
+  );
+}
+```
+- `textarea태그`를 `싱글태그`로 `사용`할 경우 `/>`로 마감을 넣지 않으면 `오류`가 남
+
+### select 태그
+- `select` 태그도 `textarea`와 동일
+``` HTML
+<select>
+  <option value="apple">사과</option>
+  <option value="banana">바나나</option>
+  <option selected value="grape">포도</option>
+  <option value="watermelon">수박</option>
+</select>
+```
+``` JSX
+function FruitSelect(props) {
+  const [ value, setValue ] = useState('grape');
+
+  const handleChange = (event) => {
+    setValue(event.target.value);
+  }
+
+  const handleSubmit = (event) => {
+    alert('선택한 과일: ' + value);
+    event.preventDefault();
+  }
+
+  return (
+    <form onSubmit={hanleSubmit}>
+      <label>
+        과일을 선택하세요: 
+        <select value={value} onChange={handleChange}>
+          <option value="apple">사과</option>
+          <option value="banana">바나나</option>
+          <option value="grape">포도</option>
+          <option value="watermelon">수박</option>
+        </select>
+      </label>
+      <button type="submit">제출</button>
+    </form>
+  );
+}
+```
+
+
+``` JSX
+<select multiple={true} value={['B', 'C']}>
+```
+- `multiple` `속성`을 넣으면 `다중선택`이 가능함
+- `value`의 경우 `배열`의 형태로 들어감
+
+### File input 태그
+- `File input` 태그는 그 값이 `읽기 전용`이기 떄문에 `리액트`에서는 `비제어 컴포넌트`가 됨
+``` HTML
+<input type="file" />
+```
+
+### 여러개의 입력
+``` JSX
+function Reservation(props) {
+  const [haveBreakfast, setHaveBreakfast] = useState(true);
+  const [numberOfGuest, setNumberOfGuest] = useState(2);
+
+  const handleSubmit = (event) => {
+    alert(`아침식사 여부: ${haveBreakfast}, 방문객 수: ${numberOfGuest}`);
+    event.preventDefault();
+  }
+
+  return (
+    <form onSubmit={handleSubmit}>
+      <label>
+        아침식사 여부:
+        <input
+          type="checkbox"
+          checked={haveBreakfast}
+          onChange={(event)=>{
+            setHaveBreakFast(event.target.checked);
+          }}
+        />
+      </label>
+      <br />
+      <label>
+        방문객 수:
+        <input
+          type="number"
+          value={numberOfGuest}
+          onChange={(event) => {
+            setNumberOfGuest(event.target.value);
+          }}
+        />
+      </label>
+      <button type="submit">제출</button>
+    </form>
+  )
+}
+```
+
+### input null value
+- `제어 컴포넌트`에 `value prop`을 `정해진 값`으로 넣으면 코드를 수정하지 않는 한 `입력값`을 `바꿀 수 없음`
+- 만약 `value prop`은 넣되 `자유롭게 입력`할 수 있게 만들고 싶다면 값이 `undefined` 또는 `null`을 넣어주면 됨
+``` JSX
+ReactDOM.render(<input value="hi" />, rootNode);
+
+setTimeout(function() {
+  ReactDOM.render(<input value={null} />, rootNode);
+}, 1000);
+```
+
+### 실습
+1. `SignUp.jsx` 함수형 컴포넌트 생성
+``` JSX
+import React, { useState } from 'react';
+
+function SignUp(props) {
+    const [ name, setName ] = useState("");
+
+    const handleChangeName = (event) => {
+        setName(event.target.value);
+    }
+
+    const handleSubmit = (event) => {
+        alert(`이름: ${name}`);
+        event.preventDefault();
+    }
+
+    return (
+        <form onSubmit={handleSubmit}>
+            <label>
+                이름: 
+                <input type="text" value={name} onChange={handleChangeName} />
+            </label>
+            <button type="submit">제출</button>
+        </form>
+    );
+}
+
+export default SignUp;
+```
+
+2. 성별 입력 코드 추가
+``` JSX
+import React, { useState } from 'react';
+
+function SignUp(props) {
+    const [ name, setName ] = useState("");
+    const [ gender, setGender ] = useState("남자");
+
+    const handleChangeName = (event) => {
+        setName(event.target.value);
+    }
+
+    const handleChangeGender = (event) => {
+        setGender(event.target.value);
+    }
+
+    const handleSubmit = (event) => {
+        alert(`이름: ${name}, 성별: ${gender}`);
+        event.preventDefault();
+    }
+
+    return (
+        <form onSubmit={handleSubmit}>
+            <label>
+                이름: 
+                <input type="text" value={name} onChange={handleChangeName} />
+            </label>
+            <br/>
+            <label>
+                성별:
+                <select value={gender} onChange={handleChangeGender}>
+                    <option value="남자">남자</option>
+                    <option value="여자">여자</option>
+                </select>
+            </label>
+            <button type="submit">제출</button>
+        </form>
+    );
+}
+
+export default SignUp;
+```
+
+### chapter11 요약
+- `폼`이란
+  - `사용자`로부터 `입력`을 받기 위해 `사용`하는 `양식`
+- `제어 컴포넌트`
+  - `사용자`가 `입력`한 `값`에 `접근`하고 `제어`할 수 있게 해주는 `컴포넌트`
+  - `값`이 `리액트`의 `통제`를 받는 `입력 폼 엘리먼트`
+- `<input type="text">` 태그
+  - `한 줄`로 `텍스트`를 `입력`받기 위한 `HTML 태그`
+  - `리액트`에서는 `value`라는 `attribute`로 `입력`된 `값`을 `관리`
+- `<textarea>` 태그
+  - `여러 줄`에 걸쳐서 `텍스트`를 `입력`받기 위한 `HTML 태그`
+  - `리액트`에서는 `value`라는 `attribute`로 `입력`된 `값`을 `관리`
+- `<select>` 태그
+  - `드롭다운 목록`을 보여주기 위한 `HTML 태그`
+  - 여러 가지 `옵션` 중에서 `하나` 또는 `여러 개`를 `선택`할 수 있는 기능을 제공
+  - `리액트`에서는 `value`라는 `attribute`로 `입력`된 `값`을 `관리`
+- `<input type="file">` 태그
+  - `디바이스`의 `저장 장치`로부터 `사용자`가 `하나` 또는 `여러 개`의 `파일`을 `선택`할 수 있게 해주는 `HTML 태그`
+  - `서버`로 `파일`을 `업로드`하거나 `자바스크립트`의 `File API`를 사용해서 파일을 다룰 떄 사용
+  - `읽기 전용`이기 떄문에 `리액트`에서는 `비제어 컴포넌트`가 됨
+- `여러 개`의 `입력` 다루기
+  - `컴포넌트`에 `여러 개`의 `state`를 `선언`하여 각각의 `입력`에 대해 `사용`하면 됨
+- `Input Null Value`
+- `value prop`은 넣되 `자유롭게 입력`할 수 있게 만들고 싶을 경우, 값에 `undefined` 또는 `null`을 넣으면 됨
+
+---
 ## 9주차_20230427
 ### 이벤트 처리
 - `DOM`에서 클릭 이벤트
