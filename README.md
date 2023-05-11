@@ -1,5 +1,304 @@
 # 201930107 남궁찬 - React1
+## 11주차_20230511
 
+### Shared State
+- `자식 컴포넌트`들이 `공통된 부모 컴포넌트`의 `state`를 `공유`해서 사용하는 것
+- 어떤 컴포넌트의 `state`에 있는 데이터를 여러 개의 `하위 컴포넌트`에서 `공통적`으로 사용하는 경우
+
+### 하위 컴포넌트에서 State 공유
+1. `물의 끓음 여부`를 알려주는 `컴포넌트`
+   - `섭씨온도 값`을 `props`로 받아 물이 끓는지 안 끓는지를 `문자열`로 `출력`해주는 `컴포넌트`
+```JSX
+function BoilingVerdict(props) {
+  if (props.celsius >= 100) {
+    return <p>물이 끓습니다.</p>
+  }
+  return <p>물이 끓지 않습니다.</p>
+}
+```
+
+   - 이 컴포넌트를 사용하는 `부모 컴포넌트`
+```JSX
+function Calculator(props) {
+  const [temperature, setTemperature] = useState('');
+
+  const handleChange = (event) => {
+    setTemperature(event.target.value);
+  }
+
+  return (
+    <fieldset>
+      <legend>섭씨 온도를 입력하세요:</legend>
+      <input
+        value={temperature}
+        onChange={handleChange}
+      />
+      <BoilingVerdict
+        celsius={perseFloat(temperature)}
+      />
+    </fieldset>
+  )
+}
+```
+   - 온도 `state`값을 `하위 컴포넌트`의 `props`에 전달해줌
+
+2. `입력 컴포넌트` `추출`
+```JSX
+const scaleNames = {
+  c: '섭씨',
+  f: '화씨'
+};
+
+function TemperatureInput(props) {
+  const [temperature, setTemperature] = useState('');
+
+  const handleChange = (event) => {
+    setTemperature(event.target.value);
+  }
+
+  return (
+    <fieldset>
+      <legend>온도를 입력해 주세요(단위:{scaleNames[props.scale]}):</legend>
+      <input
+        value={temperature}
+        onChange={handleChange}
+      />
+    </fieldset>
+  )
+}
+```
+   - `props`로 `온도 단위`를 `전달`받아 `섭씨`와 `화씨`로 입력 가능하도록 입력부분 추출
+
+```JSX
+function Calculator(props) {
+  return (
+    <div>
+      <TemperatureInput sclae="c" />
+      <TemperatureInput sclae="f" />
+    </div>
+  );
+}
+```
+
+1. `온도 변환 함수` 작성
+```JSX
+function toCelsius(fahrenheit) {
+  return (fahrenheit - 32) * 5 / 9;
+}
+
+function toFahrenheit(celsius) {
+  return (celsius * 9 / 5) + 32;
+}
+```
+
+   - 해당 함수를 호출하는 함수
+```JSX
+function tryConvert(temperature, convert) {
+  const input = parseFloat(temperature);
+  if(Number.isNaN(input)) {
+    return '';
+  }
+  const output = convert(input);
+  const rounded = Math.round(output * 1000) / 1000;
+  return rounded.toString();
+}
+```
+   - `온도 값`과 `변환하는 함수`를 `파라미터`로 받아 값을 `변환`시켜 `리턴`해줌
+
+   - 이 함수 사용방법
+```JS
+tryConvert('abc', toCelsius); // empty string을 리턴
+tryConvert('10.22', toFahrenheit); // '50.396'을 리턴
+```
+
+4. `Shared State` 적용
+   - `하위 컴포넌트`의 `state`를 `공통된 부모 컴포넌트`로 올려 `shared state`를 적용해야 함
+   - `state`를 `상위 컴포넌트`로 올리는것을 `State끌어올리기`(`Lifting State Up`)이라 함
+
+   - `TemperatureInput` 컴포넌트 수정
+``` JSX
+...
+return (
+  ...
+  // 변경 전: <input value={temperature} onChange={handleChange} />
+  <input
+    value={props.temperature}
+    onChange={handleChange}
+  />
+  ...
+)
+```
+   - `온도 값`을 컴포넌트의 `state`에서 가져오는것이 아닌 `props`를 통해 가져오게 됨
+   - 컴포넌트의 `state`를 사용하지 않으므로 `입력값 변경` 시 `상위 컴포넌트`로 `변경값`을 `전달`해야 함
+   - 이를 위해 `handleChange`함수 수정
+``` JSX
+const handleChange = (event) => {
+  // 변경 전: setTemperature(event.target.value);
+  props.onTemperatureChange(event.target.value);
+}
+```
+   - `온도 값` `변경` 시 `props`에 있는 `onTemperatureChange()`함수를 통해 `온도 값`이 `상위 컴포넌트`로 `전달`됨
+``` JSX
+function TemperatureInput(props) {
+  const handleChange = (event) => {
+    props.onTemperatureChange(event.target.value);
+  }
+
+  return (
+    <fieldset>
+      <legend>온도를 입력해 주세요(단위:{scaleNames[props.scale]})</legend>
+    </fieldset>
+    <input
+      value={props.temperature}
+      onChange={handleChange}
+    />
+  )
+}
+```
+   - `state`가 제거되고 오로지 `상위 컴포넌트`에서 `전달받은 값`만을 사용하고 있음
+
+5. `Calculator` 컴포넌트 변경
+``` JSX
+function Calculator(props) {
+  const [temperature, setTemperature] = useState('');
+  const [scale, setScale] = useState('c');
+
+  const handleCelsiusChange = (temperature) => {
+    setTemperature(temperature);
+    setScale('c');
+  }
+
+  const handleFahrenheitChange = (temperature) => {
+    setTemperature(temperature);
+    setScale('f');
+  }
+
+  const celsius = scale === 'f' ? tryConvert(temperature, toCelsius) : temperature;
+  const fahrenheit = scale === 'c' ? tryConvert(temperature, toFahrenhit) : temperature;
+
+  return (
+    <div>
+      <TemperatureInput
+        scale="c"
+        temperature={celsius}
+        onTemperatureChange={handleCelsiusChange}
+      />
+      <TemperatureInput
+        scale="f"
+        temperature={celsius}
+        onTemperatureChange={handleCelsiusChange}
+      />
+      <BoilingVerdict celsius={parseFloat(celsius)} />
+    </div>
+  );
+}
+```
+
+### 실습
+1. `TemperatureInput` 컴포넌트 만들기
+``` JSX
+import React from 'react';
+
+const scaleNames = {
+    c: "섭씨",
+    f: "화씨",
+};
+
+function TemperatureInput(props) {
+    const handleChange = (event) => {
+        props.onTemperatureChange(event.target.value);
+    }
+
+    return (
+        <fieldset>
+            <legend>
+                온도를 입력해주세요(단위: {scaleNames[props.scale]}):
+            </legend>
+            <input
+                value={props.temperature}
+                onChange={handleChange}
+            />
+        </fieldset>
+    );
+}
+
+export default TemperatureInput;
+```
+
+2. `Calculator` 컴포넌트 만들기
+``` JSX
+import React, { useState } from 'react';
+import TemperatureInput from './TemperatureInput';
+
+function BoilingVerdict(props) {
+    if (props.celsius >= 100) {
+        return <p>물이 끓습니다.</p>;
+    }
+    return <p>물이 끓지 않습니다.</p>;
+}
+
+function toCelsius(fahrenheit) {
+    return ((fahrenheit - 32) * 5) / 9;
+}
+
+function toFahrenheit(celsius) {
+    return (celsius * 9) / 5 + 32;
+}
+
+function tryConvert(temperature, convert) {
+    const input = parseFloat(temperature);
+    if (Number.isNaN(input)) {
+        return "";
+    }
+    const output = convert(input);
+    const rounded = Math.round(output * 1000) / 1000;
+    return rounded.toString();
+}
+
+function Calculator(props) {
+    const [temperature, setTemperature] = useState('');
+    const [scale, setScale] = useState('c');
+
+    const handleCelsiusChange = (temperature) => {
+        setTemperature(temperature);
+        setScale('c');
+    }
+
+    const handleFahrenheitChange = (temperature) => {
+        setTemperature(temperature);
+        setScale('f');
+    }
+
+    const celsius = scale === 'f' ? tryConvert(temperature, toCelsius) : temperature;
+    const fahrenheit = scale === 'c' ? tryConvert(temperature, toFahrenheit) : temperature;
+
+    return (
+        <div>
+            <TemperatureInput
+                scale="c"
+                temperature={celsius}
+                onTemperatureChange={handleCelsiusChange}
+            />
+            <TemperatureInput
+                scale="f"
+                temperature={fahrenheit}
+                onTemperatureChange={handleFahrenheitChange}
+            />
+            <BoilingVerdict celsius={parseFloat(celsius)} />
+        </div>
+    );
+}
+
+export default Calculator;
+```
+
+### chapter12 요약
+- `Shared state`
+  - `하위 컴포넌트`가 `공통된 부모 컴포넌트`의 `state`를 `공유`하여 사용하는 것
+- `state 끌어올리기`
+  - `하위 컴포넌트`의 `state`를 `공통된 부모 컴포넌트`로 `끌어올려서 공유`하는 방식
+
+---
 ## 10주차_20230504
 ### 리스트와 키
 - `리스트`: `자바스크립트`의 `변수`나 `객체`를 하나의 변수로 묶어 놓은 `배열`과 같은 것
