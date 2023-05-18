@@ -1,6 +1,467 @@
 # 201930107 남궁찬 - React1
-## 11주차_20230511
 
+## 12주차_20230518
+### 합성
+- `합성(Composition)`은 `'여러 개의 컴포넌트를 합쳐서 새로운 컴포넌트를 만드는 것'`
+- `조합 방법`에 따라 `합성`의 `사용 기법`은 다음과 같이 나눌 수 있음
+
+### 1. Containment (담다, 포함하다, 격리하다)
+- `특정 컴포넌트`가 `하위 컴포넌트를 포함하는 형태의 합성 방법`
+- `컴포넌트`에 따라서는 어떤 `자식 엘리먼트`가 들어올 지 미리 `예상할 수 없는 경우`가 있음
+- 범용적인 `'박스'` 역할을 하는 `Sidebar` 혹은 `Dialog`와 같은 컴포넌트에서 특히 자주 볼 수 있음
+- 이런 컴포넌트에서는 `children prop을 사용하여 자식 엘리먼트를 출력에 그대로 전달`하는 것이 좋음
+- 이때 `children prop`은 `컴포넌트의 props에 기본적으로 들어있는 children속성을 사용`함
+
+``` JSX
+function FancyBorder(props) {
+  return (
+    <div className={'FancyBorder FancyBorder-' + props.color}>
+      {props.children}
+    </div>
+  );
+}
+```
+- 다음과 같이 `props.children`을 사용하면 `해당 컴포넌트`의 `하위 컴포넌트`가 모두 `children`으로 들어오게 됨
+``` JS
+React.createElement(
+  type,
+  [props],
+  [...children]
+)
+```
+- `children`은 다음 구조에서 세 번째 들어가는 파라미터
+- `파라미터`가 `배열`로 되어있는 이유는 `여러 개`의 `하위 컴포넌트`를 가질 수 있기 떄문
+- `children`이 `배열`로 되어있는 것은 `여러 개`의 `하위 컴포넌트`를 위한 것
+- `React.createElement()`
+  - `JSX`를 사용하지 않는 경우의 `props전달` 방법
+  - `JSX`를 사용하지 않고 `리액트`로 `엘리먼트`를 `생성`하는 방법
+``` JSX
+// jSX 사용
+const jsxElement = <h1 className="JSX">JSX Element </h1>
+```
+``` JS
+// JSX 미사용
+const reactElement = React.createElement(
+  'h1', //tag
+  {className: 'obj'}, // props
+  'OBJ Element'
+)
+```
+
+- `FancyBorder` `컴포넌트`를 사용하는 예제
+``` JSX
+function WelcomeDialog(props) {
+  return (
+    <FancyBorder color="blue">
+      <h1 className="Dialog-title">
+        어서오세요
+      </h1>
+      <p className="Dialog-message">
+        우리 사이트에 방문하신 것을 환영합니다!
+      </p>
+    </FancyBorder>
+  )
+}
+```
+- `WelcomeDialog` 컴포넌트는 `FancyBorder` 컴포넌트를 사용하고, `FancyBorder` 컴포넌트는 `<h1>`과 `<p>` 두개의 태그를 `children`이 `props`로 전달됨
+- `리액트`에서는 `props.children`을 통해 `하위 컴포넌트`를 하나로 모아서 제공해줌
+- 만일 `여러 개`의 `children` 집합이 필요할 경우 별도로 props를 정의해 각각 원하는 컴포넌트를 넣어줌
+``` JSX
+function SplitPane(props) {
+  return (
+    <div className="SplitPane">
+      <div className="SplitPane-left">
+        {props.left}
+      </div>
+      <div className="SplitPane-right">
+        {props.right}
+      </div>
+    </div>
+  );
+}
+
+function App(props) {
+  return (
+    <SplitPane
+      left={
+        <Contacts />
+      }
+      right={
+        <Chat />
+      }
+    />
+  )
+}
+```
+- 예와 같이 `SplitPane`은 화면을 `왼쪽`과 `오른쪽`으로 `분할`해 주고, `App`에서는 `SPlitPane`을 사용해서 `left`, `right` 두 개의 `props`를 정의하고 있음
+- `App`에서 `left`, `right`를 `props`를 받아 `화면`을 `분할`하게 됨. 이처럼 여러 개의 `children`집합이 필요한 경우 별도의 `props`를 `정의`해서 사용함
+
+### 2. Specialization (특수화, 전문화)
+- `WelcomeDialog`는 다이얼로그의 `특별한 케이스`임
+- `범용적인 개념`을 `구별`이 되게 `구체화`하는 것을 `특수화`라고 함
+- `객체지향 언어`에서는 `상속`을 사용하여 `특수화`를 구현함
+- `리액트`에서는 `합성`을 사용하여 `특수화`를 구현함
+``` JSX
+function Dialog(props) {
+  return (
+    <FancyBorder color="blue">
+      <h1 className="Dialog-title">
+        {props.title}
+      </h1>
+      <p className="Dialog-message">
+        {props.message}
+      </p>
+    </FancyBorder>
+  )
+}
+
+function WelcomDialog(props) {
+  return (
+    <Dialog
+      title="어서오세요"
+      message="우리 사이트에 방문하신 것을 환영합니다!!"
+    />
+  )
+}
+```
+- 예와 같이 `특수화`는 `범용적`으로 쓸 수 있는 `컴포넌트`를 만들어 놓고 이를 `특수한 목적`으로 `사용`하는 `합성` 방식
+
+### 3. Containment와 Specialization을 같이 사용하기
+- `Containment`를 위해 `props.children`을 사용하고, `Specialization`을 위해 직접 정의한 `props`를 사용하면 됨
+``` JSX
+function Dialog(props) {
+  return (
+    <FancyBorder color="blue">
+      <h1 className="Dialog-title">
+        {props.title}
+      </h1>
+      <p className="Dialog-message">
+        {props.message}
+      </p>
+      {props.children}
+    </FancyBorder>
+  );
+}
+
+function SignUpDialog(props) {
+  const [nickname, setNickname] = useState('');
+
+  const handleChange = (event) => {
+    setNicname(event.target.value);
+  }
+
+  const handleSignUp = () => {
+    alert(`어서 오세요, ${nickname}님!`);
+  }
+
+  return (
+    <Dialog
+      title="화성 탐사 프로그램"
+      message="닉네임을 입력해 주세요"
+    />
+    <input
+      value={nickname}
+      onChange={handleChange}
+    />
+    <button onClick={handleSignUp}>
+      가입하기
+    </button>
+  );
+}
+```
+- `Dialog컴포넌트`는 이전의 것과 비슷한데 `Containment`를 위해 끝부분에 `props.children`을 추가함
+- `Dialog`를 사용하는 `SignUpDialog`는 `Specialization`을 위해 `props`인 `title`, `message`에 값을 넣어주고 있고, 입력을 받기위해 `<input>`과 `<button>`을 사용함. 이 두개의 태그는 모두 `props.children`으로 전달되어 `다이얼로그`에 `표시`됨
+- 이러한 형태로 `Containment`와 `Speialization`을 동시에 사용할 수 있음
+
+### 상속
+- `합성`과 `대비`되는 `개념`으로 `상속(inheritance)`이 있음
+- `자식 클래스`는 `부모 클래스`가 가진 `변수`나 `함수` 등의 `속성`을 모두 갖게 되는 개념
+- `리액트`에서는 `상속`보다는 `합성`을 통해 `새로운 컴포넌트`를 `생성`함
+- `*복잡한 컴포넌트를 쪼개 여러 개의 컴포넌트로 만들고, 만든 컴포넌트들을 조합하여 새로운 컴포넌트를 만듬`
+
+### 실습
+- `Card 컴포넌트` 제작
+  - `하위 컴포넌트`를 감싸서 `카드 형태`로 보여주는 컴포넌트
+``` JSX
+import React from 'react';
+
+function Card(props) {
+    const { title, backgroundColor, children } = props;
+
+    return (
+        <div
+            style={{
+                margin: 8,
+                padding: 8,
+                borderRadius: 8,
+                boxShadow: "0px 0px 4px grey",
+                backgroundColor: backgroundColor || "white",
+            }}
+        >
+            {title && <h1>{title}</h1>}
+            {children}
+        </div>
+    );
+}
+
+export default Card;
+```
+- `Card컴포넌트`를 사용하여 `ProfileCard컴포넌트` 제작
+``` JSX
+import React from 'react';
+import Card from './Card';
+
+function ProfileCard(props) {
+    return (
+        <Card title="Inje Lee" backgroundColor="#4ea04e">
+            <p>안녕하세요, 소플입니다.</p>
+            <p>저는 리액트를 사용해서 개발하고 있습니다.</p>
+        </Card>
+    );
+}
+
+export default ProfileCard;
+```
+
+### chapter13 요약
+- `합성`
+  - `여러 개`의 `컴포넌트`를 `합쳐` `새로운 컴포넌트`를 만드는 것
+  - `다양`하고 `복잡`한 `컴포넌트`를 `효율적`으로 `개발`할 수 있음
+- `합성 기법`
+  - `Containment`
+    - `하위 컴포넌트`를 `포함`하는 `형태`의 `합성 방법`
+    - `리액트 컴포넌트`의 `props`에 기본적으로 들어있는 `children`속성을 사용
+    - 여러 개의 `children` 집합이 필요한 경우 `별도`로 `props`를 각각 `정의`해서 사용
+  - `Specialization`
+    - `범용적인 개념`을 `구별`되게 `구체화`하는 것
+    - `범용적`으로 쓸 수 있는 `컴포넌트`를 만들어 놓고 이를 `구체화`시켜서 `컴포넌트`를 `사용`하는 `합성 방법`
+  - `Containment`와 `Specialization`을 `함께 사용`하기
+    - `props.children`을 통해 `하위 컴포넌트`를 `포함`시키기(`Containment`)
+    - `별도`의 `props`를 `선언`하여 `구체화`시키기(`Specialization`)
+- `상속`
+  - `다른 컴포넌트`로부터 `상속`받아서 `새로운 컴포넌트`를 만드는 것
+  - `상속`을 `사용`하여 `컴포넌트`를 만드는 것을 `추천할 만한 사용 사례를 찾지 못함`
+  - `리액트`에서는 상속이라는 방법을 사용하는 것보다는 `합성`을 `사용`하는 것이 더 좋음
+
+
+### 컨텍스트
+- `기존`의 일반적인 `리액트`에서는 `데이터`가 `컴포넌트`의 `props`를 통해 `부모`에서 `자식`으로 `단방향`으로 `전달`됨
+- `컨텍스트`는 `리액트 컴포넌트`들 사이에서 `데이터`를 `기존`의 `props`를 통해 `전달`하는 방식 `대신` `'컴포넌트 트리를 통해 곧바로 컴포넌트에 전달하는 새로운 방식'`을 `제공`함
+- 이것을 통해 `어떤 컴포넌트`라도 `쉽게` `데이터`에 `접근`할 수 있음
+- `컨텍스트`를 사용하면 일일이 `props`로 전달할 `필요 없이` `데이터`를 필요로 하는 `컴포넌트`에 `곧바로 전달` 가능
+
+### 컨텍스트 사용해야 하는 경우
+- `여러 컴포넌트`에서 `자주 필요`로 하는 `데이터`는 `로그인 여부`, `로그인 정보`, `UI 테마`, `현재 선택된 언어` 등
+- 이런 데이터들을 `기존의 방식`대로 `컴포넌트`의 `props`를 통해 넘겨주는 예
+``` JSX
+function App(props) {
+  return <ToolBar theme="dark" />;
+}
+
+function Toolbar(props) {
+  // 이 Toolbar 컴포넌트는 ThemeButton에 theme를 넘겨주기 위해 'theme' prop을 가져야만 함
+  // 현재 테마를 알아야 하는 모든 버튼에 대해 props로 전달하는 것은 굉장히 비효율적임
+  return (
+    <div>
+      <ThemedButton theme={props.theme} />
+    </div>
+  );
+}
+
+function ThemedButton(props) {
+  return <Button theme={props.theme} />
+}
+```
+- `props`를 통해 `데이터`를 `전달`하는 `기존 방식`은 `실제 데이터`를 `필요로 하는 컴포넌트`까지의 `깊이`가 `깊어질 수록 복잡`해짐
+- 또한 `반복적인 코드`를 `계속`해서 `작성`해 주어야 하기 때문에 `비효율적`이고 `가독성`이 `떨어짐`
+- `컨텍스트`를 사용하면 `이러한 방식`을 `깔끔`하게 `개선` 가능
+
+```JSX
+// 컨텍스트는 데이터를 매번 컴포넌트를 통해 전달할 필요 없이 컴포넌트 트리로 곧바로 전달하게 해줌
+// 여기에서는 현재 테마를 위한 컨텍스트를 생성하며, 기본값은 'light'임
+const ThemeContext = React.createContext('light');
+
+// Provider를 사용하여 하위 컴포넌트들에게 현재 테마 데이터를 전달함
+// 모든 하위 컴포넌트들은 컴포넌트 트리 하단에 얼마나 깊이 있는지에 관계없이 데이터를 읽을 수 있음
+// 여기에서는 현재 테마값으로 'dark'를 전달하고 있음
+function App(props) {
+  return (
+    <ThemeContext.Provider value="dark">
+      <Toolbar />
+    </ThemeContext.Provider>
+  );
+}
+
+// 이제 중간에 위치한 컴포넌트는 테마 데이터를 하위 컴포넌트로 전달할 필요가 없음
+function Toolbar(props) {
+  return (
+    <div>
+      <ThemedButton />
+    </div>
+  );
+}
+
+function ThemedButton(props) {
+  // 리액트는 가장 가까운 상위 테마 Provider를 찾아서 해당되는 값을 사용함
+  // 만약 해당되는 Provider가 없을 경우 기본값(여기에서는 'light')을 사용함
+  // 여기에서는 상위 Provider가 있기 때문에 현재 테마의 값은 'dark'가 됨
+  return (
+    <ThemeContext.Consumer>
+      {value => <Button theme={value} />}
+    </ThemeContext.Consumer>
+  );
+}
+```
+- `React.createContext()`함수를 사용해서 `ThemeContext`라는 이름의 `컨텍스트`를 생성
+- `컨텍스트`를 사용하려면 `컴포넌트`의 `상위 컴포넌트`에서 `Provider`로 `감싸주어야 함`
+- 예제에서는 `최상위 컴포넌트`인 `App` 컴포넌트에서 `Toolbar`를 `ThemeContext.Provider`로 감싸줌
+- 이렇게 하면 `Provider`로 `감싼` `하위 컴포넌트`의 `깊이와 관계없이` `컨텍스트`의 `데이터`를 `읽을 수 있음`
+
+### 컨텍스트 사용 전 고려할 점
+- `컨텍스트`는 `다른 레벨`의 `많은 컴포넌트`가 `특정 데이터`를 `필요로 하는 경우` `주로 사용`함
+- 하지만 `무조건` `컨텍스트`를 `사용`하는 것이 `좋은 것은 아님`
+- `컴포넌트`와 `컨텍스트`가 `연동`되면 `재사용성`이 `떨어지기 떄문`
+- 따라서 `다른 레벨`의 `많은 컴포넌트`가 `데이터`를 `필요`로 하는 `경우가 아니면` `props`를 통해 `데이터`를 `전달`하는 `컴포넌트 합성 방법`이 더 `적합`함
+
+``` JSX
+// Page컴포넌트는 PageLayout컴포넌트를 렌더링
+<Page user={user} avatarSize={avatarSize} />
+
+// PageLayout컴포넌트는 NavigationBar컴포넌트를 렌더링
+<PageLayout user={user} avatarSize={avatarSize} />
+
+// NavigationBar컴포넌트는 Link컴포넌트를 렌더링
+<NavigationBar user={user} avatarSize={avatarSize} />
+
+// Link컴포넌트는 Avatar컴포넌트를 렌더링
+<Link href={user.permalink}>
+  <Avatar user={user} avatarSize={avatarSize} />
+</Link>
+```
+- 위 예제처럼 `user`와 `avatarSize`를 `사용`하는 것은 `Avatar 컴포넌트` 뿐인데 `여러 단계`에 걸쳐 `props`를 `전달`하고 있음
+- 이런 경우 `컨텍스트`를 `사용하지 않고` `문제`를 `해결`할 수 있는 `방법`은 `Avatar 컴포넌트`를 `변수`에 `저장`하여 `직접 넘겨주는 것`임
+- 이렇게 하면 `중간 단계`의 `컴포넌트들`은 `user`와 `avatarSize`에 대해 `몰라도 됨`
+```JSX
+function Page(props) {
+  const user = props.user;
+
+  const userLink = (
+    <Link href={user.permalink}>
+      <Avatar user={user} size={props.avatarSize} />
+    </Link>
+  );
+  
+  // Page 컴포넌트는 PageLayout 컴포넌트를 렌더링
+  // 이때 props로 userLink를 함께 전달함
+  return <PageLayout userLink={userLink} />
+}
+
+// PageLayout 컴포넌트는 NavigationBar 컴포넌트를 렌더링
+<PageLayout userLink={...} />
+
+// NavigationBar 컴포넌트는 props로 전달받은 userLink element를 리턴
+<NavigationBar userLink={...} />
+```
+- 위 예제가 모든 상황에서 좋은것은 아님
+- `데이터`가 `많아질수록` `상위 컴포넌트`가 점점 더 `복잡해지기 떄문`
+- 이런 경우 `하위 컴포넌트`를 `여러 개`의 `변수`로 나눠서 전달하면 됨
+``` JSX
+function Page(props) {
+  const user = props.user;
+
+  const topBar = (
+    <NavigationBar>
+      <Link href={user.permalink}>
+        <Avatar user={user} size={props.avatarSize} />
+      </Link>
+    </NavigationBar>
+  );
+  const content = <Feed user={user} />
+
+  return (
+    <PageLayout
+      topBar={topBar}
+      content={content}
+    />
+  )
+}
+```
+- 하지만 `어떤 경우`에는 `하나의 데이터`에 `다양한 레벨`에 있는 `중첩된 컴포넌트`들의 `접근`이 `필요`할 수 있음
+- 이런 경우라면 `컨텍스트`가 `유리`함
+- `컨텍스트`는 `해당 데이터`와 `데이터`의 `변경사항`을 모두 `하위 컴포넌트`들에게 `broadcast`해주기 때문
+- `컨텍스트`를 `사용`하기에 `적합`한 `데이터`의 대표적인 예로는 `'지역 정보', 'UI 테마' 그리고 '캐싱된 데이터'`등이 있음
+
+
+### 컨텍스트 API
+- `리액트`에서 `제공`하는 `컨텍스트 API`를 통해 `컨텍스트 사용 방법`
+
+1. `React.createContext`
+   - `컨텍스트`를 `생성`하기 위한 `함수`
+   - `파라미터`에는 `기본값`을 넣어주면 됨
+   - `하위 컴포넌트`는 `가장 가까운` `상위 레벨`의 `Provider`로 부터 `컨텍스트`를 받게 되지만, 만일 `Provider`를 `찾을 수 없다면` 위에서 설정한 `기본값`을 `사용`하게 됨
+   - `const MyContext = React.createContext(기본값);`
+
+2. `Context.Provider`
+   - `Context.Provider` `컴포넌트`로 `하위 컴포넌트`들을 감싸주면 `모든 하위 컴포넌트`들이 `해당 컨텍스트`의 `데이터`에 `접근`할 수 있게 됨
+     - `<MyContext.Provider value={/* some value */}>`
+   - `Provider` 컴포넌트에는 `value`라는 `prop`이 있고, 이것은 `Provider` 컴포넌트 `하위`에 있는 `컴포넌트`에게 `전달`됨
+   - `하위 컴포넌트`를 `consumer 컴포넌트`라고 부름
+   - `Provider value`에서 주의해야 할 사항
+     - `컨텍스트`는 `재렌더링 여부`를 `결정`할 때 `레퍼런스 정보`를 `사용`하기 떄문에 `Provider`의 ``부모 컴포넌트``가 `재렌더링`되었을 경우, 의도치 않게 `consumer 컴포넌트`의 `재렌더링`이 일어날 수 있음
+``` JSX
+function App(props) {
+  return (
+    <MyContext.Provider value={{ something: 'something' }}>
+      <Toolbar />
+    </MyContext.Provider>
+  )
+}
+```
+   - `Provider 컴포넌트`가 `재렌더링`될 때마다 `모든 하위 consumer 컴포넌트`의 `재렌더링`이 `발생`함.
+   - `value prop`을 위한 `새로운 객체`가 `매번 새롭게 생성`되기 때문
+   - 이를 방지하기 위해 `value`를 직접 넣는 것이 아니라 `컴포넌트`의 `state`로 옮기고 해당 `state`의 값을 넣어줘야 함
+``` JSX
+function App(props) {
+  const [value, setValue] = useState({ something: 'something' });
+
+  return (
+    <MyContext.Provider value ={value}>
+      <Toolbar />
+    </MyContext.Provider>
+  )
+}
+```
+
+1. `Class.contextType`
+   - `Provider` `하위`에 있는 `클래스 컴포넌트`에서 `컨텍스트`의 `데이터`에게 `접근`하기 위해 `사용`함
+   - `Class 컴포넌트`는 더 이상 `사용하지 않으므로` 참고만 함
+2. `Context.Consumer`
+      - `함수형 컴포넌트`에서 `Context.Consumer`를 `사용`하여 `컨텍스트`를 구독할 수 있음
+``` JSX
+<MyContext.Consumer>
+  {value => /* 컨텍스트의 값에 따라서 컴포넌트들을 렌더링 */}
+</MyContext.Consumer>
+```
+   - `컴포넌트`의 `자식`으로 `함수`가 올 수 있는데 이것을 `function as a child`라고 부름
+   - `Context.Consumer`로 감싸주면 `자식`으로 들어간 `함수`가 현재 `컨텍스트`의 `value`를 받아서 `리액트 노드`로 `리턴`함
+   - `함수`로 전달되는 `value`는 `Provider`의 `value prop`과 `동일`함
+
+1. `Context.displayName`
+   - `컨텍스트 객체`는 `displayName`이라는 `문자열 속성`을 갖게 됨
+   - `크롬`의 `리액트 개발자 도구`에서는 `컨텍스트`의 `Provider`나 `Consumer`를 `표시`할 때 `displayName`을 함께 `표시`해 줌
+``` JSX
+const MyContext = React.createContext(/* some value */);
+MyContext.displayName = 'MyDisplayName';
+
+// 개발자 도구에 'MyDisplayName.Provider'로 표시됨
+<MyContext.Provider />
+
+// 개발자 도구에 "MyDisplayName.Consumer"로 표시됨
+<MyContext.Consumer />
+```
+
+---
+## 11주차_20230511
 ### Shared State
 - `자식 컴포넌트`들이 `공통된 부모 컴포넌트`의 `state`를 `공유`해서 사용하는 것
 - 어떤 컴포넌트의 `state`에 있는 데이터를 여러 개의 `하위 컴포넌트`에서 `공통적`으로 사용하는 경우
