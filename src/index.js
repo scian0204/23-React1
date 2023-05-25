@@ -2,12 +2,12 @@ import React from 'react';
 import ReactDOM from 'react-dom/client';
 import './index.css';
 import reportWebVitals from './reportWebVitals';
-import ProfileCard from './chapter_13/ProfileCard';
+import DarkOfLight from './chapter_14/DarkOfLight';
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
   <React.StrictMode>
-    <ProfileCard />
+    <DarkOfLight />
   </React.StrictMode>
 );
 
