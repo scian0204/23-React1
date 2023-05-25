@@ -1,5 +1,189 @@
 # 201930107 남궁찬 - React1
 
+## 13주차_20230525
+### 여러개의 컨텍스트
+- `여러개`의 `컨텍스트`를 `동시에` 사용하려면 `Context.Provider`를 `중첩`해서 사용함
+``` JSX
+// 테마를 위한 컨텍스트
+const ThemeContext = React.createContext('light');
+
+// 로그인 한 사용자를 위한 컨텍스트
+const UserContext = React.createContext({
+  name: 'Guest',
+});
+
+class App extends React.Component {
+  render() {
+    const { signedInUser, theme } = this.props;
+
+    return (
+      <ThemeContext.Provider value={theme}>
+        <UserContext.Provider value={signedInUser}>
+          <Layout />
+        </UserContext.Provider>
+      </ThemeContext.Provider>
+    );
+  }
+}
+
+function Layout() {
+  return (
+    <div>
+      <Sidebar />
+      <Content />
+    </div>
+  );
+}
+
+// 컨텍스트 컴포넌트는 두 개의 컨텍스트로부터 값을 가져와서 렌더링함
+function Content() {
+  return (
+    <ThemeContext.Consumer>
+      {theme => (
+        <UserContext.Consumer>
+          {user => (
+            <ProfilePage user={user} theme={theme}>
+          )}
+        </UserContext.Consumer>
+      )}
+    </ThemeContext.Consumer>
+  )
+}
+```
+- `ThemeContext`와 `UserContext`를 `중첩`해서 사용하고 있음
+- `두 개` 또는 `그 이상`의 `컨텍스트 값`이 자주 `함께 사용`될 경우 모`든 값`을 `한 번에 제공`해 주는 `별도`의 `render prop 컴포넌트`를 직접 만드는 것을 고려하는 것이 좋음
+
+### useContext
+- `함수형 컴포넌트`에서 `컨텍스트`를 사용하기 위해 컴포넌트를 매번 `Consumer 컴포넌트`로 감싸주는 것보다 `Hook`을 사용함
+- `useContext()` 훅은 `React.createContext()` 함수 호출로 생성된 `컨텍스트 객체`를 `인자`로 받아 현재 `컨텍스트의 값`을 `리턴`함
+``` JSX
+function MyComponent(props) {
+  const value = useContext(MyContext);
+
+  return (...);
+}
+```
+- 이 방법도 `가장 가까운` `상위` `Provider`로부터 `컨텍스트의 값`을 받아옴
+- 값이 변경되면 `useContext()` 훅을 사용하는 `컴포넌트`가 `재렌더링` 됨
+- 또한 `useContext()` 훅을 사용할 때에는 `파라미터`로 `컨텍스트 객체`를 넣어줘야 한다는 것을 기억해야 함
+
+### 실습
+1. `ThemeContext.jsx` 컴포넌트 제작
+``` JSX
+import React from 'react';
+
+const ThemeContext = React.createContext();
+ThemeContext.displayName = "ThemeContxt";
+
+export default ThemeContext;
+```
+2. `MainContent.jsx` 컴포넌트 제작
+``` JSX
+import React, { useContext } from 'react';
+import ThemeContext from './ThemeContext';
+
+function MainContent(props) {
+    const { theme, toggleTheme } = useContext(ThemeContext);
+
+    return (
+        <div
+            style={{
+                width: "100vw",
+                height: "100vh",
+                padding: "1.5rem",
+                backgroundColor: theme === "light" ? "white" : "black",
+                color: theme === "light" ? "black" : "white",
+            }}
+        >
+            <p>안녕하세요, 테마 변경이 가능한 웹사이트 입니다.</p>
+            <button onClick={toggleTheme}>테마 변경</button>
+        </div>
+    )
+}
+
+export default MainContent;
+```
+3. `DarkOrLight.jsx` 컴포넌트 제작
+``` JSX
+import React, { useCallback, useState } from 'react';
+import ThemeContext from './ThemeContext';
+import MainContent from './MainContent';
+
+function DarkOfLight(props) {
+    const [ theme, setTheme ] = useState('light');
+
+    const toggleTheme = useCallback(() => {
+        if (theme === "light") {
+            setTheme("dark");
+        } else if (theme === "dark") {
+            setTheme("light");
+        }
+    }, [theme]);
+
+    return (
+        <ThemeContext.Provider value={{theme, toggleTheme}}>
+            <MainContent />
+        </ThemeContext.Provider>
+    )
+}
+
+export default DarkOfLight;
+```
+
+### chapter14 요약
+- `컨텍스트`
+  - `컴포넌트`들 사이에서 `데이터`를 `props`를 통해 `전달하는 것이 아닌` `컴포넌트 트리`를 통해 곧바로 `데이터`를 `전달`하는 방식
+  - 어떤 컴포넌트든지 `컨텍스트`에 있는 `데이터`에 `쉽게 접근`할 수 있음
+- `컨텍스트 사용해야 하는 경우`
+  - `여러 컴포넌트`에서 `계속`해서 `접근`이 일어날 수 있는 `데이터`들이 있는 경우
+  - `Provider`의 `모든 하위 컴포넌트`가 얼마나 `깊이` 위치해 있는지 `관계없이` `컨텍스트`의 `데이터`를 읽을 수 있음
+- `컨텍스트 사용 전 고려사항`
+  - `컴포넌트`와 `컨텍스트`가 `연동`되면 `재사용성`이 `떨어짐`
+  - `다른 레벨`의 `많은 컴포넌트`가 `데이터`를 필요로 하는 경우가 아니라면, `기존 방식`대로 `props`를 통해 `데이터`를 `전달`하는 것이 더 적합
+- `컨텍스트 API`
+  - `React.createContext()`
+    - `컨텍스트`를 `생성`하기 위한 함수
+    - `컨텍스트 객체`를 `리턴`함
+    - `기본값`으로 `undefined`를 넣으면 `기본값`이 `사용되지 않음`
+  - `Context.Provider`
+    - `모든 컨텍스트 객체`는 `Provider`라는 `컴포넌트`를 갖고있음
+    - `Provider` 컴포넌트로 `하위 컴포넌트`들을 감싸주면 `모든 하위 컴포넌트`들이 `해당 컨텍스트`의 `데이터`에 `접근`할 수 있게 됨
+    - `Provider`에는 `value`라는 `prop`이 있으며, 이것이 데이터로써 `하위`에 있는 `컴포넌트`들에게 `전달`됨
+    - `여러 개`의 `Provider` 컴포넌트를 `중첩`시켜 사용할 수 있음
+  - `Class.contextType`
+    - `Provider` `하위`에 있는 `클래스 컴포넌트`에서 `컨텍스트`의 `데이터`에 `접근`하기 위해 사용
+    - `단 하나`의 `컨텍스트`만을 `구독`할 수 있음
+  - `Context.Consumer`
+    - `컨텍스트`의 `데이터`를 `구독`하는 `컴포넌트`
+    - `데이터`를 `소비`한다는 뜻에서 `consumer 컴포넌트`라고도 부름
+    - `consumer 컴포넌트`는 `컨텍스트 값`의 변화를 지켜보다가 값이 `변경`되면 `재렌더링`됨
+    - 하나의 `Provider컴포넌트`는 `여러 개`의 `consumer 컴포넌트`와 `연결`될 수 있음
+    - `상위 레벨`에 `매칭`되는 `Provider`가 없을 경우 `기본값`이 `사용`됨
+  - `Context.displayName`
+    - `크롬`의 `리액트 개발자 도구`에서 표시되는 `컨텍스트 객체`의 `이름`
+- `여러 개의 컨텍스트 사용`
+  - `Provider 컴포넌트`와 `Consumer 컴포넌트`를 여러 개 `중첩`해서 `사용`하면 됨
+- `useContext()`
+  - `함수 컴포넌트`에서 `컨텍스트`를 쉽게 `사용`할 수 있게 해주는 `훅`
+  - `React.createContext()` 함수 호출로 `생성`된 `컨텍스트 객체`를 `인자`로 받아서 `현재 컨텍스트의 값`을 `리턴`
+  - `컨텍스트`의 `값`이 `변경`되면 `변경된 값`과 함께 `useContext()` 훅을 `사용`하는 `컴포넌트`가 `재렌더링`됨
+
+### CSS
+- `Cascading Style Sheets`의 약자
+- 스타일링을 위한 일종의 언어
+
+### CSS문법과 선택자
+- 엘리먼트에 스타일이 적용되는 규칙을 `selector`라고 함
+- 스타일을 어떤 엘리먼트에 적용할지를 선택하게 해줌
+- 선택자를 먼저 쓰고 이후에 적용할 스타일을 중괄호 안에 세미콜론(;)으로 구분하여 하나씩 기술
+``` CSS
+h1 {
+  color: green;
+  font-size: 16px;
+}
+```
+
+---
 ## 12주차_20230518
 ### 합성
 - `합성(Composition)`은 `'여러 개의 컴포넌트를 합쳐서 새로운 컴포넌트를 만드는 것'`
@@ -432,10 +616,10 @@ function App(props) {
 }
 ```
 
-1. `Class.contextType`
+3. `Class.contextType`
    - `Provider` `하위`에 있는 `클래스 컴포넌트`에서 `컨텍스트`의 `데이터`에게 `접근`하기 위해 `사용`함
    - `Class 컴포넌트`는 더 이상 `사용하지 않으므로` 참고만 함
-2. `Context.Consumer`
+4. `Context.Consumer`
       - `함수형 컴포넌트`에서 `Context.Consumer`를 `사용`하여 `컨텍스트`를 구독할 수 있음
 ``` JSX
 <MyContext.Consumer>
@@ -446,7 +630,7 @@ function App(props) {
    - `Context.Consumer`로 감싸주면 `자식`으로 들어간 `함수`가 현재 `컨텍스트`의 `value`를 받아서 `리액트 노드`로 `리턴`함
    - `함수`로 전달되는 `value`는 `Provider`의 `value prop`과 `동일`함
 
-1. `Context.displayName`
+5. `Context.displayName`
    - `컨텍스트 객체`는 `displayName`이라는 `문자열 속성`을 갖게 됨
    - `크롬`의 `리액트 개발자 도구`에서는 `컨텍스트`의 `Provider`나 `Consumer`를 `표시`할 때 `displayName`을 함께 `표시`해 줌
 ``` JSX
