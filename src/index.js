@@ -2,12 +2,12 @@ import React from 'react';
 import ReactDOM from 'react-dom/client';
 import './index.css';
 import reportWebVitals from './reportWebVitals';
-import DarkOfLight from './chapter_14/DarkOfLight';
+import Blocks from './chapter_15/Blocks';
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
   <React.StrictMode>
-    <DarkOfLight />
+    <Blocks />
   </React.StrictMode>
 );
 
